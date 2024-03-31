@@ -51,6 +51,26 @@ class Set:
         self.object_mask |= other.object_mask
         return self
 
+    def hit_or_miss(self, se: Set, y: int, x: int):
+        """Hit or Miss morphological operation with the given structural element and its
+        origin."""
+        if not se.point_in_bbox(y, x):
+            raise ValueError(
+                "The function does not support the origin outside the "
+                "structuring element."
+            )
+        result = Set(self.h, self.w, empty=True)
+        for i in np.ndindex((self.h, self.w)):
+            origin = subtract_tuples(i, (y, x))
+            cutout = self.object_mask[
+                max(0, origin[0]) : origin[0] + se.h,
+                max(0, origin[1]) : origin[1] + se.w,
+            ]
+            result.object_mask[i] = np.all(
+                cutout == se.clipped(origin[0], origin[1], self.h, self.w).object_mask
+            )
+        return result
+
     def clipped(self, y: int, x: int, h: int, w: int) -> Set:
         """Returns a clipped set as if it was put in another set of specific size in
         the specific position."""
