@@ -166,7 +166,7 @@ class Set:
             y + set.h - 1, x + set.w - 1
         )
 
-    def is_subset(self, y: int, x: int, set: Set) -> bool:
+    def has_subset(self, y: int, x: int, set: Set) -> bool:
         """Checks whether a given set is a subset of the set."""
         if not self.set_is_in_bbox(y, x, set):
             return False
@@ -193,7 +193,7 @@ class Set:
         for i in anchor_touch_indexes:
             for j in set_touch_indexes:
                 origin = subtract_tuples(i, j)
-                if not self.is_subset(origin[0], origin[1], to_fit):
+                if not self.has_subset(origin[0], origin[1], to_fit):
                     continue
                 if anchor.collides(origin[0], origin[1], to_fit):
                     continue
