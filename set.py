@@ -3,13 +3,14 @@
 from __future__ import annotations
 import random
 from copy import copy, deepcopy
+from typing import Tuple
+
 import numpy as np
 from numpy.typing import NDArray
 from dimensions import DimensionRange
 from direction import Direction
 from utils import (
     add_tuples,
-    get_adjacency_mask,
     subtract_tuples,
     Connectivity,
 )
@@ -101,8 +102,11 @@ class Set:
     def get_moved(self, direction: Direction, offset: int = 1) -> Set:
         """Returns a set moved in the direction with the offset."""
         moved = Set(self.h, self.w, True)
+        if offset == 0:
+            moved.object_mask = self.object_mask
+            return moved
         object_indexes = self.get_indexes()
-        moved_indexes = object_indexes + direction.get_tuple() * offset
+        moved_indexes = object_indexes + direction.coordinates() * offset
         moved_indexes = self.clip_indexes(moved_indexes)
         moved.set_indexes(moved_indexes)
         return moved
@@ -114,7 +118,7 @@ class Set:
     def get_inner_border(self, connectivity: Connectivity) -> Set:
         """Returns the inner border of the set. A border tile is connected to
         background."""
-        kernel = get_adjacency_mask(connectivity)
+        kernel = connectivity.get_adjacency_mask()
         border = Set(self.h, self.w, empty=True)
         for i in np.ndindex((self.h, self.w)):
             if not self.object_mask[i]:
@@ -179,10 +183,39 @@ class Set:
             & self.object_mask[max(0, y) : y + set.h, max(0, x) : x + set.w]
         )
 
-    def fit_in_touching(self, to_fit: Set, anchor: Set, direction: Direction) -> tuple:
-        """Fits in the set another set touching the anchor in the given direction."""
-        anchor_touch_set = anchor.get_moved(direction)
-        anchor_touch_set -= anchor
+    def fit_in(
+        self,
+        to_fit: Set,
+        anchor: Set,
+        directions: Tuple = Direction.get_all_directions(),
+    ) -> tuple:
+        """Fits in another set on the points specified by the anchor in specific
+        direction."""
+        valid_points = []
+        anchor_touch_indexes = anchor.get_indexes()
+        for direction in directions:
+            set_touch_indexes = to_fit.get_frontier_in_direction(
+                direction
+            ).get_indexes()
+            for i in anchor_touch_indexes:
+                for j in set_touch_indexes:
+                    origin = subtract_tuples(i, j)
+                    if not self.has_subset(origin[0], origin[1], to_fit):
+                        continue
+                    valid_points.append(origin)
+        if valid_points:
+            result = random.choice(valid_points)
+            return result[0], result[1]
+        return None, None
+
+    # TODO Implement another method but without anchor collision check.
+    def fit_in_touching(
+        self, to_fit: Set, anchor: Set, direction: Direction, offset: int = 0
+    ) -> tuple:
+        """Fits in another set touching the anchor in the given direction. The new
+        set will not collide with the anchor."""
+        anchor_touch_set = anchor.get_moved(direction, offset + 1)
+        anchor_touch_set -= anchor.get_moved(direction, offset)
         anchor_touch_indexes = anchor_touch_set.get_indexes()
 
         set_touch_indexes = to_fit.get_frontier_in_direction(
