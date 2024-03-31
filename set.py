@@ -208,7 +208,6 @@ class Set:
             return result[0], result[1]
         return None, None
 
-    # TODO Implement another method but without anchor collision check.
     def fit_in_touching(
         self, to_fit: Set, anchor: Set, direction: Direction, offset: int = 0
     ) -> tuple:
