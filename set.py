@@ -89,7 +89,7 @@ class Set:
         indexes = np.transpose(indexes)
         self.object_mask[indexes[0], indexes[1]] = True
 
-    def clip_indexes(self, indexes) -> NDArray[np.int32]:
+    def clip_indexes(self, indexes: NDArray[np.int32]) -> NDArray[np.int32]:
         """Returns indexes with those out of bounds removed."""
         return indexes[
             (0 <= indexes[:, 0])
@@ -179,7 +179,7 @@ class Set:
             & self.object_mask[max(0, y) : y + set.h, max(0, x) : x + set.w]
         )
 
-    def fit_in_touching(self, to_fit: Set, anchor: Set, direction: Direction):
+    def fit_in_touching(self, to_fit: Set, anchor: Set, direction: Direction) -> tuple:
         """Fits in the set another set touching the anchor in the given direction."""
         anchor_touch_set = anchor.get_moved(direction)
         anchor_touch_set -= anchor
@@ -204,7 +204,7 @@ class Set:
         return None, None
 
 
-def get_random_rectangle_set(dim_range: DimensionRange):
+def get_random_rectangle_set(dim_range: DimensionRange) -> Set:
     """Generates a random rectangular set of size based of input ranges."""
     width = random.randrange(dim_range.min_w, dim_range.max_w + 1)
     height = random.randrange(dim_range.min_h, dim_range.max_h + 1)
