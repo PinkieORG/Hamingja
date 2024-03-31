@@ -51,7 +51,7 @@ class Set:
         self.object_mask |= other.object_mask
         return self
 
-    def get_clipped(self, y: int, x: int, h: int, w: int) -> Set:
+    def clipped(self, y: int, x: int, h: int, w: int) -> Set:
         """Returns a clipped set as if it was put in another set of specific size in
         the specific position."""
         yl = abs(min(0, y))
@@ -74,9 +74,9 @@ class Set:
         """Empties the set."""
         self.object_mask.fill(False)
 
-    def get_frontier_in_direction(self, direction: Direction) -> Set:
+    def frontier_in_direction(self, direction: Direction) -> Set:
         """Returns a subset that borders with background in the direction."""
-        moved = self.get_moved(direction.get_opposite())
+        moved = self.moved(direction.get_opposite())
         frontier = copy(self)
         frontier -= moved
         return frontier
@@ -99,7 +99,7 @@ class Set:
             & (indexes[:, 1] < self.w)
         ]
 
-    def get_moved(self, direction: Direction, offset: int = 1) -> Set:
+    def moved(self, direction: Direction, offset: int = 1) -> Set:
         """Returns a set moved in the direction with the offset."""
         moved = Set(self.h, self.w, True)
         if offset == 0:
@@ -115,7 +115,7 @@ class Set:
         """Flips the set."""
         self.object_mask = np.flip(self.object_mask)
 
-    def get_inner_border(self, connectivity: Connectivity) -> Set:
+    def inner_border(self, connectivity: Connectivity) -> Set:
         """Returns the inner border of the set. A border tile is connected to
         background."""
         kernel = connectivity.get_adjacency_mask()
@@ -125,9 +125,10 @@ class Set:
                 continue
             for k in kernel:
                 n = add_tuples(i, k)
-                if not self.point_is_in_bbox(*n) or not self.object_mask[n]:
+                if not self.point_in_bbox(*n) or not self.object_mask[n]:
                     border.object_mask[i] = True
         return border
+
 
     def subtract(self, y: int, x: int, set: Set) -> None:
         """Subtracts two sets at the given position."""
@@ -135,51 +136,51 @@ class Set:
             self.object_mask[y : y + set.h, x : x + set.w] & ~set.object_mask
         )
 
-    def union(self, y: int, x: int, set: Set) -> None:
+    def unify(self, y: int, x: int, set: Set) -> None:
         """Performs a union of two sets at the given position."""
         self.object_mask[y : y + set.h, x : x + set.w] = (
             self.object_mask[y : y + set.h, x : x + set.w] & set.object_mask
         )
 
-    def intersection(self, y: int, x: int, set: Set) -> None:
+    def intersect(self, y: int, x: int, set: Set) -> None:
         """Performs an intersection of two sets at the given position."""
         cutout = self.object_mask[y : y + set.h, x : x + set.w].copy()
         self.empty()
         self.object_mask[y : y + set.h, x : x + set.w] = cutout & set.object_mask
 
-    def get_union(self, y: int, x: int, set: Set) -> Set:
+    def union(self, y: int, x: int, set: Set) -> Set:
         """Returns a union of two sets."""
         union = deepcopy(self)
-        union.union(y, x, set)
+        union.unify(y, x, set)
         return union
 
-    def get_intersection(self, y: int, x: int, set: Set) -> Set:
+    def intersection(self, y: int, x: int, set: Set) -> Set:
         """Returns an intersection of two sets."""
         intersection = deepcopy(self)
-        intersection.intersection(y, x, set)
+        intersection.intersect(y, x, set)
         return intersection
 
-    def point_is_in_bbox(self, y: int, x: int) -> bool:
+    def point_in_bbox(self, y: int, x: int) -> bool:
         """Checks whether a point is inside the bounding box of the set."""
         return 0 <= y < self.h and 0 <= x < self.w
 
-    def set_is_in_bbox(self, y: int, x: int, set: Set) -> bool:
+    def set_in_bbox(self, y: int, x: int, set: Set) -> bool:
         """Checks whether a whole set is inside the bounding box of the
         set."""
-        return self.point_is_in_bbox(y, x) and self.point_is_in_bbox(
+        return self.point_in_bbox(y, x) and self.point_in_bbox(
             y + set.h - 1, x + set.w - 1
         )
 
     def has_subset(self, y: int, x: int, set: Set) -> bool:
         """Checks whether a given set is a subset of the set."""
-        if not self.set_is_in_bbox(y, x, set):
+        if not self.set_in_bbox(y, x, set):
             return False
         return np.all(~set.object_mask | self.object_mask[y : y + set.h, x : x + set.w])
 
     def collides(self, y: int, x: int, set: Set) -> bool:
         """Checks whether the intersection of two sets is empty."""
         return np.all(
-            set.get_clipped(y, x, self.h, self.w).object_mask
+            set.clipped(y, x, self.h, self.w).object_mask
             & self.object_mask[max(0, y) : y + set.h, max(0, x) : x + set.w]
         )
 
@@ -194,9 +195,7 @@ class Set:
         valid_points = []
         anchor_touch_indexes = anchor.get_indexes()
         for direction in directions:
-            set_touch_indexes = to_fit.get_frontier_in_direction(
-                direction
-            ).get_indexes()
+            set_touch_indexes = to_fit.frontier_in_direction(direction).get_indexes()
             for i in anchor_touch_indexes:
                 for j in set_touch_indexes:
                     origin = subtract_tuples(i, j)
@@ -213,11 +212,11 @@ class Set:
     ) -> tuple:
         """Fits in another set touching the anchor in the given direction. The new
         set will not collide with the anchor."""
-        anchor_touch_set = anchor.get_moved(direction, offset + 1)
-        anchor_touch_set -= anchor.get_moved(direction, offset)
+        anchor_touch_set = anchor.moved(direction, offset + 1)
+        anchor_touch_set -= anchor.moved(direction, offset)
         anchor_touch_indexes = anchor_touch_set.get_indexes()
 
-        set_touch_indexes = to_fit.get_frontier_in_direction(
+        set_touch_indexes = to_fit.frontier_in_direction(
             direction.get_opposite()
         ).get_indexes()
 
