@@ -56,5 +56,18 @@ object = new_tile(
 border = new_tile(
     walkable=False,
     transparent=False,
-    dark=(ord("B"), (127, 0, 255), (127, 0, 255)),
+    dark=(ord("B"), (255, 0, 255), (255, 0, 255)),
+)
+
+test2 = new_tile(
+    walkable=False,
+    transparent=False,
+    dark=(ord("B"), (0, 153, 0), (0, 153, 0)),
+)
+
+
+test22 = new_tile(
+    walkable=False,
+    transparent=False,
+    dark=(ord("B"), (0, 153, 0), (0, 153, 0)),
 )
