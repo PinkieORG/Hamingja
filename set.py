@@ -129,7 +129,6 @@ class Set:
                     border.object_mask[i] = True
         return border
 
-
     def subtract(self, y: int, x: int, set: Set) -> None:
         """Subtracts two sets at the given position."""
         self.object_mask[y : y + set.h, x : x + set.w] = (
