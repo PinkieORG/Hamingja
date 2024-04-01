@@ -2,12 +2,13 @@ import numpy as np
 from numpy.typing import NDArray
 
 from game_map.areas.sets.set import Set
+from game_map.areas.sets.supplementaries import Size
 from game_map.direction.direction import Direction
 
 
 class StructuralElement:
     def __init__(self, mask: NDArray[np.int32], x: int, y: int):
-        self.set = Set(mask.shape[0], mask.shape[1])
+        self.set = Set(Size(mask.shape[0], mask.shape[1]))
         self.set.object_mask = mask
         self.y = y
         self.x = x

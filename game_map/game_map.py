@@ -3,47 +3,50 @@ from tcod.console import Console
 
 import tile_types
 from game_map.areas.area import Area
+from game_map.areas.sets.set import Set
+from game_map.areas.sets.supplementaries import Size
 from game_map.direction.direction import Direction
 from game_map.rooms.rooms import LRoom, Room
 
 
 class GameMap(Area):
-    def __init__(self, h: int, w: int):
-        super().__init__(h, w)
-        self.tiles = np.full((h, w), fill_value=tile_types.wall)
+    def __init__(self, size: Size):
+        super().__init__(size)
+        self.tiles = np.full(size.tuple(), fill_value=tile_types.wall)
 
     def render(self, console: Console) -> None:
-        console.rgb[0 : self.h, 0 : self.w] = self.tiles["dark"]
+        console.rgb[0 : self.size.h, 0 : self.size.w] = self.tiles["dark"]
 
 
-class Wall(Area):
-    def __init__(self, h: int, w: int):
-        super().__init__(h, w)
-        self.tiles = np.full((h, w), fill_value=tile_types.wall)
-        self.object_area = np.full((h, w), fill_value=False)
-        np.fill_diagonal(self.object_area, True)
+# class Wall(Area):
+#     def __init__(self, h: int, w: int):
+#         super().__init__(h, w)
+#         self.tiles = np.full((h, w), fill_value=tile_types.wall)
+#         self.object_area = np.full((h, w), fill_value=False)
+#         np.fill_diagonal(self.object_area, True)
 
 
 def generate_dungeon(map_height, map_width) -> GameMap:
-    game_map = GameMap(map_height, map_width)
+    game_map = GameMap(Size(map_height, map_width))
 
-    room1 = LRoom(40, 60, Direction.WEST)
+    room1 = LRoom(Size(40, 30), Direction.WEST)
     room1.fill_border(tile_types.test2)
-    room2 = Room(20, 20)
-    room2.fill_border(tile_types.test1)
 
-    room3 = LRoom(10, 10)
-    room3.fill_border(tile_types.test2)
-
-    y, x = room2.fit_in_touching_border(room3, Direction.EAST)
-    if y:
-        room2.place_in(y, x, room3)
-
-    y, x = room1.fit_in_touching_border(room2, Direction.NORTH)
-    if y:
-        room1.place_in(y, x, room2)
-
-    y, x = 1, 1
+    y, x = 5, 35
     if game_map.set_in_bbox(y, x, room1):
         game_map.place_in(y, x, room1)
+
+    room2 = LRoom(Size(20, 20), Direction.EAST)
+    room2.fill_border(tile_types.test1)
+
+    frontier = room1.frontier_in_direction(Direction.WEST)
+
+    frontier.transform(y, x, game_map.size)
+
+    g = game_map.difference(y, x, room1) + frontier
+
+    p = g.fit_in(room2, frontier, (Direction.WEST,))
+
+    game_map.place_in_randomly(p, room2)
+
     return game_map

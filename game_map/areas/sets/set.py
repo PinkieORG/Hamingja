@@ -9,6 +9,7 @@ from typing import Tuple, List
 import numpy as np
 from numpy.typing import NDArray
 
+from game_map.areas.sets.supplementaries import Size
 from game_map.direction.connectivity import Connectivity
 from game_map.direction.direction import Direction
 from utils import (
@@ -20,16 +21,15 @@ from utils import (
 class Set:
     """Simple binary sets"""
 
-    def __init__(self, h: int, w: int, empty: bool = False) -> None:
+    def __init__(self, size: Size, empty: bool = False) -> None:
         """Constructs the sets of"""
-        self.h = h
-        self.w = w
-        self.object_mask = np.full((h, w), fill_value=not empty)
+        self.size = size
+        self.object_mask = np.full(size.tuple(), fill_value=not empty)
 
     def __sub__(self, other: Set) -> Set:
         if not self.same_size(other):
             raise ValueError("Operation with sets of different sizes.")
-        result = Set(self.h, self.w, empty=True)
+        result = Set(self.size, empty=True)
         result.object_mask = self.object_mask & ~other.object_mask
         return result
 
@@ -42,7 +42,7 @@ class Set:
     def __add__(self, other: Set) -> Set:
         if not self.same_size(other):
             raise ValueError("Operation with sets of different sizes.")
-        result = Set(self.h, self.w, empty=True)
+        result = Set(self.size, empty=True)
         result.object_mask = self.object_mask | other.object_mask
         return result
 
@@ -53,28 +53,28 @@ class Set:
         return self
 
     def __neg__(self):
-        result = Set(self.h, self.w, empty=True)
+        result = Set(self.size, empty=True)
         result.object_mask = ~self.object_mask
         return result
 
-    def clipped(self, y: int, x: int, h: int, w: int) -> Set:
+    def clipped(self, y: int, x: int, size: Size) -> Set:
         """Returns a clipped sets as if it was put in another sets of specific size in
         the specific position."""
         yl = abs(min(0, y))
-        yr = min(h - y, self.h)
+        yr = min(size.h - y, self.size.h)
         xl = abs(min(0, x))
-        xr = min(w - x, self.w)
+        xr = min(size.w - x, self.size.w)
 
         if xl > xr or yl > yr:
-            return Set(0, 0)
+            return Set(Size(0, 0))
 
-        clipped = Set(yr - yl, xr - xl, empty=True)
+        clipped = Set(Size(yr - yl, xr - xl), empty=True)
         clipped.object_mask = self.object_mask[yl:yr, xl:xr]
         return clipped
 
     def same_size(self, other: Set) -> bool:
         """Checks if sets have the same size."""
-        return self.h == other.h and self.w == other.w
+        return self.size == other.size
 
     def empty(self) -> None:
         """Empties the sets."""
@@ -101,13 +101,13 @@ class Set:
         return indexes[
             (0 <= indexes[:, 0])
             & (0 <= indexes[:, 1])
-            & (indexes[:, 0] < self.h)
-            & (indexes[:, 1] < self.w)
+            & (indexes[:, 0] < self.size.h)
+            & (indexes[:, 1] < self.size.w)
         ]
 
     def moved(self, direction: Direction, offset: int = 1) -> Set:
         """Returns a sets moved in the direction with the offset."""
-        moved = Set(self.h, self.w, True)
+        moved = Set(self.size, True)
         if offset == 0:
             moved.object_mask = self.object_mask
             return moved
@@ -125,8 +125,8 @@ class Set:
         """Returns the inner border of the sets. A border tile is the one connected to
         background."""
         kernel = connectivity.get_adjacency_mask()
-        border = Set(self.h, self.w, empty=True)
-        for i in np.ndindex((self.h, self.w)):
+        border = Set(self.size, empty=True)
+        for i in np.ndindex(self.size.tuple()):
             if not self.object_mask[i]:
                 continue
             for k in kernel:
@@ -146,21 +146,28 @@ class Set:
 
     def subtract(self, y: int, x: int, set: Set) -> None:
         """Subtracts two sets at the given position."""
-        self.object_mask[y : y + set.h, x : x + set.w] = (
-            self.object_mask[y : y + set.h, x : x + set.w] & ~set.object_mask
+        self.object_mask[y : y + set.size.h, x : x + set.size.w] = (
+            self.object_mask[y : y + set.size.h, x : x + set.size.w] & ~set.object_mask
         )
 
     def unify(self, y: int, x: int, set: Set) -> None:
         """Performs a union of two sets at the given position."""
-        self.object_mask[y : y + set.h, x : x + set.w] = (
-            self.object_mask[y : y + set.h, x : x + set.w] & set.object_mask
+        self.object_mask[y : y + set.size.h, x : x + set.size.w] = (
+            self.object_mask[y : y + set.size.h, x : x + set.size.w] | set.object_mask
         )
 
     def intersect(self, y: int, x: int, set: Set) -> None:
         """Performs an intersection of two sets at the given position."""
-        cutout = self.object_mask[y : y + set.h, x : x + set.w].copy()
+        cutout = self.object_mask[y : y + set.size.h, x : x + set.size.w].copy()
         self.empty()
-        self.object_mask[y : y + set.h, x : x + set.w] = cutout & set.object_mask
+        self.object_mask[y : y + set.size.h, x : x + set.size.w] = (
+            cutout & set.object_mask
+        )
+
+    def difference(self, y: int, x: int, set: Set) -> Set:
+        difference = deepcopy(self)
+        difference.subtract(y, x, set)
+        return difference
 
     def union(self, y: int, x: int, set: Set) -> Set:
         """Returns a union of two sets."""
@@ -176,27 +183,35 @@ class Set:
 
     def point_in_bbox(self, y: int, x: int) -> bool:
         """Checks whether a point is inside the bounding box of the sets."""
-        return 0 <= y < self.h and 0 <= x < self.w
+        return 0 <= y < self.size.h and 0 <= x < self.size.w
 
     def set_in_bbox(self, y: int, x: int, set: Set) -> bool:
         """Checks whether a whole sets is inside the bounding box of the
         sets."""
         return self.point_in_bbox(y, x) and self.point_in_bbox(
-            y + set.h - 1, x + set.w - 1
+            y + set.size.h - 1, x + set.size.w - 1
         )
 
     def has_subset(self, y: int, x: int, set: Set) -> bool:
         """Checks whether a given sets is a subset of the sets."""
         if not self.set_in_bbox(y, x, set):
             return False
-        return np.all(~set.object_mask | self.object_mask[y : y + set.h, x : x + set.w])
+        return np.all(
+            ~set.object_mask | self.object_mask[y : y + set.size.h, x : x + set.size.w]
+        )
 
     def collides(self, y: int, x: int, set: Set) -> bool:
         """Checks whether the intersection of two sets is empty."""
         return np.all(
-            set.clipped(y, x, self.h, self.w).object_mask
-            & self.object_mask[max(0, y) : y + set.h, max(0, x) : x + set.w]
+            set.clipped(y, x, self.size).object_mask
+            & self.object_mask[max(0, y) : y + set.size.h, max(0, x) : x + set.size.w]
         )
+
+    def transform(self, y: int, x: int, size: Size) -> None:
+        transformed = Set(size, True)
+        transformed.unify(y, x, self)
+        self.size = size
+        self.object_mask = transformed.object_mask
 
     def fit_in(
         self,

@@ -1,6 +1,7 @@
 import random
 
 from game_map.areas.sets.set import Set
+from game_map.areas.sets.supplementaries import Size
 
 
 class DimensionRange:
@@ -16,4 +17,4 @@ def random_rectangle_set(dim_range: DimensionRange) -> Set:
     """Generates a random rectangular sets of size based of input ranges."""
     width = random.randrange(dim_range.min_w, dim_range.max_w + 1)
     height = random.randrange(dim_range.min_h, dim_range.max_h + 1)
-    return Set(height, width)
+    return Set(Size(height, width))

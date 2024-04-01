@@ -12,14 +12,14 @@ def hit_or_miss(set: Set, se: StructuralElement):
             "The function does not support the origin outside the "
             "structuring element."
         )
-    result = Set(set.h, set.w, empty=True)
-    for i in np.ndindex((set.h, set.w)):
+    result = Set(set.size, empty=True)
+    for i in np.ndindex(set.size.tuple()):
         origin = subtract_tuples(i, (se.y, se.x))
         cutout = set.object_mask[
-            max(0, origin[0]) : origin[0] + se.set.h,
-            max(0, origin[1]) : origin[1] + se.set.w,
+            max(0, origin[0]) : origin[0] + se.set.size.h,
+            max(0, origin[1]) : origin[1] + se.set.size.w,
         ]
         result.object_mask[i] = np.all(
-            cutout == se.set.clipped(origin[0], origin[1], set.h, set.w).object_mask
+            cutout == se.set.clipped(origin[0], origin[1], set.size).object_mask
         )
     return result

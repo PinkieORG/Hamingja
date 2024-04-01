@@ -5,6 +5,7 @@ import numpy as np
 import tile_types
 from game_map.areas.area import Area
 from game_map.areas.sets.randomised_sets import DimensionRange, random_rectangle_set
+from game_map.areas.sets.supplementaries import Size
 from game_map.direction.direction import Direction
 
 
@@ -13,8 +14,8 @@ from game_map.direction.direction import Direction
 
 
 class Room(Area):
-    def __init__(self, h: int, w: int):
-        super().__init__(h, w)
+    def __init__(self, size: Size):
+        super().__init__(size)
         self.fill_background(tile_types.floor)
         self.fill_border(tile_types.object)
 
@@ -47,15 +48,15 @@ class MultiRoom(Room):
 
 class LRoom(Room):
     def __init__(
-        self, h: int, w: int, direction: Direction = Direction.get_random_direction()
+        self, size: Size, direction: Direction = Direction.get_random_direction()
     ):
-        super().__init__(h, w)
+        super().__init__(size)
 
         fill_dim_range = DimensionRange(
-            self.h // 2.5,
-            self.h // 1.5,
-            self.w // 2.5,
-            self.w // 1.5,
+            self.size.h // 2.5,
+            self.size.h // 1.5,
+            self.size.w // 2.5,
+            self.size.w // 1.5,
         )
         rectangle = random_rectangle_set(fill_dim_range)
         y, x = self.fit_in_corner(rectangle, (direction,))
