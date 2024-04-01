@@ -17,7 +17,7 @@ class Room(Area):
     def __init__(self, size: Size):
         super().__init__(size)
         self.fill_background(tile_types.floor)
-        self.fill_border(tile_types.object)
+        # self.fill_border(tile_types.object)
 
     @staticmethod
     def from_dim_range(dim_range: DimensionRange):

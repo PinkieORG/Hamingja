@@ -4,6 +4,7 @@ import random
 from typing import List
 
 import numpy as np
+from tcod.console import Console
 
 import tile_types
 from game_map.areas.sets.set import Set
@@ -20,8 +21,9 @@ def from_set(set, fill_value):
 class Area(Set):
     """Represent an areas of tiles."""
 
-    def __init__(self, size: Size, empty: bool = False):
+    def __init__(self, size: Size, empty: bool = False, origin: Point = Point(0, 0)):
         super().__init__(size, empty)
+        self.origin = origin
         self.parent = None
         self.children = []
         self.tiles = np.full(size.tuple(), fill_value=tile_types.void)
@@ -57,18 +59,30 @@ class Area(Set):
             Point(p.y + area.size.h - 1, p.x + area.size.w - 1)
         ):
             raise ValueError("Area to insert does not fit inside the bounding box.")
-        self.children.append(area)
         self.tiles[p.y : p.y + area.size.h, p.x : p.x + area.size.w] = area.tiles
 
     def place_in(self, p: Point, area: Area) -> None:
         """Places another areas inside the sets."""
         if not self.has_subset(p, area):
             raise ValueError("Area to insert does not fit inside the sets.")
-        self.tiles[p.y : p.y + area.size.h, p.x : p.x + area.size.w] = np.where(
-            area.object_mask,
-            area.tiles,
-            self.tiles[p.y : p.y + area.size.h, p.x : p.x + area.size.w],
+        area.origin = p
+        self.children.append(area)
+
+    def render(self, console: Console, parent_origin: Point):
+        global_origin = parent_origin + self.origin
+        console.rgb[
+            global_origin.y : global_origin.y + self.size.h,
+            global_origin.x : global_origin.x + self.size.w,
+        ] = np.where(
+            self.object_mask,
+            self.tiles["dark"],
+            console.rgb[
+                global_origin.y : global_origin.y + self.size.h,
+                global_origin.x : global_origin.x + self.size.w,
+            ],
         )
+        for child in self.children:
+            child.render(console, self.origin)
 
     # def place_next_to(
     #     self,

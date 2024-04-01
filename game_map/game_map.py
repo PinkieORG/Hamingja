@@ -14,9 +14,6 @@ class GameMap(Area):
         super().__init__(size)
         self.tiles = np.full(size.tuple(), fill_value=tile_types.wall)
 
-    def render(self, console: Console) -> None:
-        console.rgb[0 : self.size.h, 0 : self.size.w] = self.tiles["dark"]
-
 
 # class Wall(Area):
 #     def __init__(self, h: int, w: int):
@@ -37,7 +34,7 @@ def generate_dungeon(map_height, map_width) -> GameMap:
         game_map.place_in(p, room1)
 
     room2 = LRoom(Size(20, 20), Direction.EAST)
-    room2.fill_border(tile_types.test1)
+    # room2.fill_border(tile_types.test1)
 
     frontier = room1.frontier_in_direction(Direction.WEST)
 
