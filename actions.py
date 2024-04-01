@@ -35,7 +35,7 @@ class MovementAction(Action):
         dest_y = entity.y + self.dy
         dest_x = entity.x + self.dx
 
-        if not engine.game_map.point_is_in_bbox(dest_y, dest_x):
+        if not engine.game_map.point_in_bbox(dest_y, dest_x):
             return
         if not engine.game_map.tiles["walkable"][dest_y, dest_x]:
             return

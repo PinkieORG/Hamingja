@@ -66,8 +66,8 @@ test2 = new_tile(
 )
 
 
-test22 = new_tile(
+test1 = new_tile(
     walkable=False,
     transparent=False,
-    dark=(ord("B"), (0, 153, 0), (0, 153, 0)),
+    dark=(ord("B"), (255, 0, 255), (255, 0, 255)),
 )

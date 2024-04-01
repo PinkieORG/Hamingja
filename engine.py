@@ -4,13 +4,18 @@ from tcod.console import Console
 from tcod.context import Context
 
 from entity import Entity
-from game_map import GameMap
+from game_map.game_map import GameMap
 from input_handlers import EventHandler
 
 
 class Engine:
-    def __init__(self, entities: Set[Entity], event_handler: EventHandler,
-                 game_map: GameMap, player: Entity, ):
+    def __init__(
+        self,
+        entities: Set[Entity],
+        event_handler: EventHandler,
+        game_map: GameMap,
+        player: Entity,
+    ):
 
         self.entities = entities
         self.event_handler = event_handler
@@ -29,8 +34,7 @@ class Engine:
         self.game_map.render(console)
 
         for entity in self.entities:
-            console.print(y=entity.y, x=entity.x, string=entity.char,
-                          fg=entity.color)
+            console.print(y=entity.y, x=entity.x, string=entity.char, fg=entity.color)
 
         context.present(console)
 

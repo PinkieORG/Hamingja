@@ -1,26 +1,27 @@
 """Set class."""
 
 from __future__ import annotations
-import random
+
 from copy import copy, deepcopy
-from typing import Tuple
+import random
+from typing import Tuple, List
 
 import numpy as np
 from numpy.typing import NDArray
-from dimensions import DimensionRange
-from direction import Direction
+
+from game_map.direction.connectivity import Connectivity
+from game_map.direction.direction import Direction
 from utils import (
     add_tuples,
     subtract_tuples,
-    Connectivity,
 )
 
 
 class Set:
-    """Simple binary set"""
+    """Simple binary sets"""
 
     def __init__(self, h: int, w: int, empty: bool = False) -> None:
-        """Constructs the set of"""
+        """Constructs the sets of"""
         self.h = h
         self.w = w
         self.object_mask = np.full((h, w), fill_value=not empty)
@@ -51,28 +52,13 @@ class Set:
         self.object_mask |= other.object_mask
         return self
 
-    def hit_or_miss(self, se: Set, y: int, x: int):
-        """Hit or Miss morphological operation with the given structural element and its
-        origin."""
-        if not se.point_in_bbox(y, x):
-            raise ValueError(
-                "The function does not support the origin outside the "
-                "structuring element."
-            )
+    def __neg__(self):
         result = Set(self.h, self.w, empty=True)
-        for i in np.ndindex((self.h, self.w)):
-            origin = subtract_tuples(i, (y, x))
-            cutout = self.object_mask[
-                max(0, origin[0]) : origin[0] + se.h,
-                max(0, origin[1]) : origin[1] + se.w,
-            ]
-            result.object_mask[i] = np.all(
-                cutout == se.clipped(origin[0], origin[1], self.h, self.w).object_mask
-            )
+        result.object_mask = ~self.object_mask
         return result
 
     def clipped(self, y: int, x: int, h: int, w: int) -> Set:
-        """Returns a clipped set as if it was put in another set of specific size in
+        """Returns a clipped sets as if it was put in another sets of specific size in
         the specific position."""
         yl = abs(min(0, y))
         yr = min(h - y, self.h)
@@ -91,7 +77,7 @@ class Set:
         return self.h == other.h and self.w == other.w
 
     def empty(self) -> None:
-        """Empties the set."""
+        """Empties the sets."""
         self.object_mask.fill(False)
 
     def frontier_in_direction(self, direction: Direction) -> Set:
@@ -106,7 +92,7 @@ class Set:
         return np.transpose(np.nonzero(self.object_mask))
 
     def set_indexes(self, indexes: NDArray[np.int32]) -> None:
-        """Sets which indexes will represent the set."""
+        """Sets which indexes will represent the sets."""
         indexes = np.transpose(indexes)
         self.object_mask[indexes[0], indexes[1]] = True
 
@@ -120,7 +106,7 @@ class Set:
         ]
 
     def moved(self, direction: Direction, offset: int = 1) -> Set:
-        """Returns a set moved in the direction with the offset."""
+        """Returns a sets moved in the direction with the offset."""
         moved = Set(self.h, self.w, True)
         if offset == 0:
             moved.object_mask = self.object_mask
@@ -132,11 +118,11 @@ class Set:
         return moved
 
     def flip(self) -> None:
-        """Flips the set."""
+        """Flips the sets."""
         self.object_mask = np.flip(self.object_mask)
 
-    def inner_border(self, connectivity: Connectivity) -> Set:
-        """Returns the inner border of the set. A border tile is connected to
+    def inner_border(self, connectivity: Connectivity = Connectivity.EIGHT) -> Set:
+        """Returns the inner border of the sets. A border tile is the one connected to
         background."""
         kernel = connectivity.get_adjacency_mask()
         border = Set(self.h, self.w, empty=True)
@@ -147,7 +133,14 @@ class Set:
                 n = add_tuples(i, k)
                 if not self.point_in_bbox(*n) or not self.object_mask[n]:
                     border.object_mask[i] = True
+                    break
         return border
+
+    def corners(self, direction: Direction):
+        from game_map.areas.sets.morphology.structural_element import corner_se
+        from game_map.areas.sets.morphology.operations import hit_or_miss
+
+        return hit_or_miss(self, corner_se(direction))
 
     def subtract(self, y: int, x: int, set: Set) -> None:
         """Subtracts two sets at the given position."""
@@ -180,18 +173,18 @@ class Set:
         return intersection
 
     def point_in_bbox(self, y: int, x: int) -> bool:
-        """Checks whether a point is inside the bounding box of the set."""
+        """Checks whether a point is inside the bounding box of the sets."""
         return 0 <= y < self.h and 0 <= x < self.w
 
     def set_in_bbox(self, y: int, x: int, set: Set) -> bool:
-        """Checks whether a whole set is inside the bounding box of the
-        set."""
+        """Checks whether a whole sets is inside the bounding box of the
+        sets."""
         return self.point_in_bbox(y, x) and self.point_in_bbox(
             y + set.h - 1, x + set.w - 1
         )
 
     def has_subset(self, y: int, x: int, set: Set) -> bool:
-        """Checks whether a given set is a subset of the set."""
+        """Checks whether a given sets is a subset of the sets."""
         if not self.set_in_bbox(y, x, set):
             return False
         return np.all(~set.object_mask | self.object_mask[y : y + set.h, x : x + set.w])
@@ -208,29 +201,28 @@ class Set:
         to_fit: Set,
         anchor: Set,
         directions: Tuple = Direction.get_all_directions(),
-    ) -> tuple:
-        """Fits in another set on the points specified by the anchor in specific
+    ) -> List:
+        """Fits in another sets on the points specified by the anchor in specific
         direction."""
         valid_points = []
         anchor_touch_indexes = anchor.get_indexes()
         for direction in directions:
-            set_touch_indexes = to_fit.frontier_in_direction(direction).get_indexes()
+            set_touch_indexes = to_fit.frontier_in_direction(
+                direction.get_opposite()
+            ).get_indexes()
             for i in anchor_touch_indexes:
                 for j in set_touch_indexes:
                     origin = subtract_tuples(i, j)
                     if not self.has_subset(origin[0], origin[1], to_fit):
                         continue
                     valid_points.append(origin)
-        if valid_points:
-            result = random.choice(valid_points)
-            return result[0], result[1]
-        return None, None
+        return valid_points
 
     def fit_in_touching(
         self, to_fit: Set, anchor: Set, direction: Direction, offset: int = 0
     ) -> tuple:
-        """Fits in another set touching the anchor in the given direction. The new
-        set will not collide with the anchor."""
+        """Fits in another sets touching the anchor in the given direction. The new
+        sets will not collide with the anchor."""
         anchor_touch_set = anchor.moved(direction, offset + 1)
         anchor_touch_set -= anchor.moved(direction, offset)
         anchor_touch_indexes = anchor_touch_set.get_indexes()
@@ -253,9 +245,20 @@ class Set:
             return result[0], result[1]
         return None, None
 
+    def fit_in_corner(
+        self, to_fit: Set, directions: Tuple = Direction.get_all_directions()
+    ):
+        """Places an areas in the corner. The areas will be touching the wall
+        in defined direction and the next wall clockwise of that direction.
+        For example: if direction is NORTH then the areas will be touching
+        NORTH and EAST walls."""
 
-def get_random_rectangle_set(dim_range: DimensionRange) -> Set:
-    """Generates a random rectangular set of size based of input ranges."""
-    width = random.randrange(dim_range.min_w, dim_range.max_w + 1)
-    height = random.randrange(dim_range.min_h, dim_range.max_h + 1)
-    return Set(height, width)
+        result = []
+        for direction in directions:
+            result += self.fit_in(
+                to_fit, self.corners(direction), (direction.get_opposite(),)
+            )
+        if result:
+            result = random.choice(result)
+            return result[0], result[1]
+        return None, None

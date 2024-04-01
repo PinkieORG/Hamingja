@@ -2,16 +2,10 @@ from __future__ import annotations
 
 from enum import Enum
 import random
+from typing import Tuple
 
-from utils import FOUR_CONNECTIVITY
-
-
-class Orientation(Enum):
-    VERTICAL = 0
-    HORIZONTAL = 1
-
-    def get_axis(self):
-        return (self.value + 1) % 2
+from game_map.direction.connectivity import FOUR_CONNECTIVITY
+from game_map.direction.orientation import Orientation
 
 
 class Direction(Enum):
@@ -24,7 +18,7 @@ class Direction(Enum):
         result = (self.value + other.value) % 4
         return Direction(result)
 
-    def get_tuple(self):
+    def coordinates(self):
         return FOUR_CONNECTIVITY[self.value]
 
     def get_orientation(self) -> Orientation:
@@ -48,6 +42,10 @@ class Direction(Enum):
     @staticmethod
     def get_random_direction() -> Direction:
         return Direction(random.randrange(0, 4))
+
+    @staticmethod
+    def get_all_directions() -> Tuple:
+        return Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST
 
     @staticmethod
     def is_horizontal(direction: Direction) -> bool:
