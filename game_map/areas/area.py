@@ -3,7 +3,7 @@ from __future__ import annotations
 import numpy as np
 
 import tile_types
-from game_map.areas.sets.set import Set, Direction
+from game_map.areas.sets.set import Set
 
 
 def from_set(set, fill_value):
@@ -64,15 +64,4 @@ class Area(Set):
             area.object_mask,
             area.tiles,
             self.tiles[y : y + area.h, x : x + area.w],
-        )
-
-    def fit_in_touching_border(
-        self,
-        to_fit: Area,
-        direction: Direction,
-        border_offset: int = 0,
-    ):
-        """Fits in another areas touching the inner border with"""
-        return self.fit_in_touching(
-            to_fit, self.inner_border(), direction, border_offset
         )

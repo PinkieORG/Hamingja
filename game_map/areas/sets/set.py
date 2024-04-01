@@ -136,7 +136,9 @@ class Set:
                     break
         return border
 
-    def corners(self, direction: Direction):
+    def corners(self, direction: Direction) -> Set:
+        """Returns corners of the set in a given direction. The direction and its
+        clockwise neighbour specifies the corner orientation."""
         from game_map.areas.sets.morphology.structural_element import corner_se
         from game_map.areas.sets.morphology.operations import hit_or_miss
 
@@ -244,6 +246,17 @@ class Set:
             result = random.choice(valid_points)
             return result[0], result[1]
         return None, None
+
+    def fit_in_touching_border(
+        self,
+        to_fit: Set,
+        direction: Direction,
+        border_offset: int = 0,
+    ):
+        """Fits in another areas touching the inner border with"""
+        return self.fit_in_touching(
+            to_fit, self.inner_border(), direction, border_offset
+        )
 
     def fit_in_corner(
         self, to_fit: Set, directions: Tuple = Direction.get_all_directions()
