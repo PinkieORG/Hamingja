@@ -59,8 +59,8 @@ class LRoom(Room):
             self.size.w // 1.5,
         )
         rectangle = random_rectangle_set(fill_dim_range)
-        y, x = self.fit_in_corner(rectangle, (direction,))
-        self.subtract(y, x, rectangle)
+        p = self.fit_in_corner(rectangle, (direction,))
+        self.subtract(p, rectangle)
 
         self.fill_border(tile_types.border)
 

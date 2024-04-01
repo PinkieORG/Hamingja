@@ -9,7 +9,7 @@ from typing import Tuple, List
 import numpy as np
 from numpy.typing import NDArray
 
-from game_map.areas.sets.supplementaries import Size
+from game_map.areas.sets.supplementaries import Size, Point
 from game_map.direction.connectivity import Connectivity
 from game_map.direction.direction import Direction
 from utils import (
@@ -57,13 +57,13 @@ class Set:
         result.object_mask = ~self.object_mask
         return result
 
-    def clipped(self, y: int, x: int, size: Size) -> Set:
+    def clipped(self, p: Point, size: Size) -> Set:
         """Returns a clipped sets as if it was put in another sets of specific size in
         the specific position."""
-        yl = abs(min(0, y))
-        yr = min(size.h - y, self.size.h)
-        xl = abs(min(0, x))
-        xr = min(size.w - x, self.size.w)
+        yl = abs(min(0, p.y))
+        yr = min(size.h - p.y, self.size.h)
+        xl = abs(min(0, p.x))
+        xr = min(size.w - p.x, self.size.w)
 
         if xl > xr or yl > yr:
             return Set(Size(0, 0))
@@ -131,7 +131,7 @@ class Set:
                 continue
             for k in kernel:
                 n = add_tuples(i, k)
-                if not self.point_in_bbox(*n) or not self.object_mask[n]:
+                if not self.point_in_bbox(Point(n[0], n[1])) or not self.object_mask[n]:
                     border.object_mask[i] = True
                     break
         return border
@@ -144,72 +144,80 @@ class Set:
 
         return hit_or_miss(self, corner_se(direction))
 
-    def subtract(self, y: int, x: int, set: Set) -> None:
+    def subtract(self, p: Point, set: Set) -> None:
         """Subtracts two sets at the given position."""
-        self.object_mask[y : y + set.size.h, x : x + set.size.w] = (
-            self.object_mask[y : y + set.size.h, x : x + set.size.w] & ~set.object_mask
+        self.object_mask[p.y : p.y + set.size.h, p.x : p.x + set.size.w] = (
+            self.object_mask[p.y : p.y + set.size.h, p.x : p.x + set.size.w]
+            & ~set.object_mask
         )
 
-    def unify(self, y: int, x: int, set: Set) -> None:
+    def unify(self, p: Point, set: Set) -> None:
         """Performs a union of two sets at the given position."""
-        self.object_mask[y : y + set.size.h, x : x + set.size.w] = (
-            self.object_mask[y : y + set.size.h, x : x + set.size.w] | set.object_mask
+        self.object_mask[p.y : p.y + set.size.h, p.x : p.x + set.size.w] = (
+            self.object_mask[p.y : p.y + set.size.h, p.x : p.x + set.size.w]
+            | set.object_mask
         )
 
-    def intersect(self, y: int, x: int, set: Set) -> None:
+    def intersect(self, p: Point, set: Set) -> None:
         """Performs an intersection of two sets at the given position."""
-        cutout = self.object_mask[y : y + set.size.h, x : x + set.size.w].copy()
+        cutout = self.object_mask[p.y : p.y + set.size.h, p.x : p.x + set.size.w].copy()
         self.empty()
-        self.object_mask[y : y + set.size.h, x : x + set.size.w] = (
+        self.object_mask[p.y : p.y + set.size.h, p.x : p.x + set.size.w] = (
             cutout & set.object_mask
         )
 
-    def difference(self, y: int, x: int, set: Set) -> Set:
+    def difference(self, p: Point, set: Set) -> Set:
         difference = deepcopy(self)
-        difference.subtract(y, x, set)
+        difference.subtract(p, set)
         return difference
 
-    def union(self, y: int, x: int, set: Set) -> Set:
+    def union(self, p: Point, set: Set) -> Set:
         """Returns a union of two sets."""
         union = deepcopy(self)
-        union.unify(y, x, set)
+        union.unify(p, set)
         return union
 
-    def intersection(self, y: int, x: int, set: Set) -> Set:
+    def intersection(self, p: Point, set: Set) -> Set:
         """Returns an intersection of two sets."""
         intersection = deepcopy(self)
-        intersection.intersect(y, x, set)
+        intersection.intersect(p, set)
         return intersection
 
-    def point_in_bbox(self, y: int, x: int) -> bool:
+    def point_in_bbox(
+        self,
+        p: Point,
+    ) -> bool:
         """Checks whether a point is inside the bounding box of the sets."""
-        return 0 <= y < self.size.h and 0 <= x < self.size.w
+        return 0 <= p.y < self.size.h and 0 <= p.x < self.size.w
 
-    def set_in_bbox(self, y: int, x: int, set: Set) -> bool:
+    def set_in_bbox(self, p: Point, set: Set) -> bool:
         """Checks whether a whole sets is inside the bounding box of the
         sets."""
-        return self.point_in_bbox(y, x) and self.point_in_bbox(
-            y + set.size.h - 1, x + set.size.w - 1
+        return self.point_in_bbox(p) and self.point_in_bbox(
+            Point(p.y + set.size.h - 1, p.x + set.size.w - 1)
         )
 
-    def has_subset(self, y: int, x: int, set: Set) -> bool:
+    def has_subset(self, p: Point, set: Set) -> bool:
         """Checks whether a given sets is a subset of the sets."""
-        if not self.set_in_bbox(y, x, set):
+        if not self.set_in_bbox(p, set):
             return False
         return np.all(
-            ~set.object_mask | self.object_mask[y : y + set.size.h, x : x + set.size.w]
+            ~set.object_mask
+            | self.object_mask[p.y : p.y + set.size.h, p.x : p.x + set.size.w]
         )
 
-    def collides(self, y: int, x: int, set: Set) -> bool:
+    def collides(self, p: Point, set: Set) -> bool:
         """Checks whether the intersection of two sets is empty."""
         return np.all(
-            set.clipped(y, x, self.size).object_mask
-            & self.object_mask[max(0, y) : y + set.size.h, max(0, x) : x + set.size.w]
+            set.clipped(p, self.size).object_mask
+            & self.object_mask[
+                max(0, p.y) : p.y + set.size.h, max(0, p.x) : p.x + set.size.w
+            ]
         )
 
-    def transform(self, y: int, x: int, size: Size) -> None:
+    def transform(self, p: Point, size: Size) -> None:
         transformed = Set(size, True)
-        transformed.unify(y, x, self)
+        transformed.unify(p, self)
         self.size = size
         self.object_mask = transformed.object_mask
 
@@ -218,7 +226,7 @@ class Set:
         to_fit: Set,
         anchor: Set,
         directions: Tuple = Direction.get_all_directions(),
-    ) -> List:
+    ) -> List[Point]:
         """Fits in another sets on the points specified by the anchor in specific
         direction."""
         valid_points = []
@@ -229,15 +237,15 @@ class Set:
             ).get_indexes()
             for i in anchor_touch_indexes:
                 for j in set_touch_indexes:
-                    origin = subtract_tuples(i, j)
-                    if not self.has_subset(origin[0], origin[1], to_fit):
+                    origin = Point(*subtract_tuples(i, j))
+                    if not self.has_subset(origin, to_fit):
                         continue
                     valid_points.append(origin)
         return valid_points
 
     def fit_in_touching(
         self, to_fit: Set, anchor: Set, direction: Direction, offset: int = 0
-    ) -> tuple:
+    ) -> Point | None:
         """Fits in another sets touching the anchor in the given direction. The new
         sets will not collide with the anchor."""
         anchor_touch_set = anchor.moved(direction, offset + 1)
@@ -251,23 +259,23 @@ class Set:
         valid_points = []
         for i in anchor_touch_indexes:
             for j in set_touch_indexes:
-                origin = subtract_tuples(i, j)
-                if not self.has_subset(origin[0], origin[1], to_fit):
+                origin = Point(*subtract_tuples(i, j))
+                if not self.has_subset(origin, to_fit):
                     continue
-                if anchor.collides(origin[0], origin[1], to_fit):
+                if anchor.collides(origin, to_fit):
                     continue
                 valid_points.append(origin)
         if valid_points:
             result = random.choice(valid_points)
-            return result[0], result[1]
-        return None, None
+            return result
+        return None
 
     def fit_in_touching_border(
         self,
         to_fit: Set,
         direction: Direction,
         border_offset: int = 0,
-    ):
+    ) -> Point | None:
         """Fits in another areas touching the inner border with"""
         return self.fit_in_touching(
             to_fit, self.inner_border(), direction, border_offset
@@ -275,7 +283,7 @@ class Set:
 
     def fit_in_corner(
         self, to_fit: Set, directions: Tuple = Direction.get_all_directions()
-    ):
+    ) -> Point | None:
         """Places an areas in the corner. The areas will be touching the wall
         in defined direction and the next wall clockwise of that direction.
         For example: if direction is NORTH then the areas will be touching
@@ -288,5 +296,5 @@ class Set:
             )
         if result:
             result = random.choice(result)
-            return result[0], result[1]
-        return None, None
+            return result
+        return None

@@ -4,7 +4,7 @@ from tcod.console import Console
 import tile_types
 from game_map.areas.area import Area
 from game_map.areas.sets.set import Set
-from game_map.areas.sets.supplementaries import Size
+from game_map.areas.sets.supplementaries import Size, Point
 from game_map.direction.direction import Direction
 from game_map.rooms.rooms import LRoom, Room
 
@@ -32,21 +32,21 @@ def generate_dungeon(map_height, map_width) -> GameMap:
     room1 = LRoom(Size(40, 30), Direction.WEST)
     room1.fill_border(tile_types.test2)
 
-    y, x = 5, 35
-    if game_map.set_in_bbox(y, x, room1):
-        game_map.place_in(y, x, room1)
+    p = Point(5, 35)
+    if game_map.set_in_bbox(p, room1):
+        game_map.place_in(p, room1)
 
     room2 = LRoom(Size(20, 20), Direction.EAST)
     room2.fill_border(tile_types.test1)
 
     frontier = room1.frontier_in_direction(Direction.WEST)
 
-    frontier.transform(y, x, game_map.size)
+    frontier.transform(p, game_map.size)
 
-    g = game_map.difference(y, x, room1) + frontier
+    g = game_map.difference(p, room1) + frontier
 
-    p = g.fit_in(room2, frontier, (Direction.WEST,))
+    pp = g.fit_in(room2, frontier, (Direction.WEST,))
 
-    game_map.place_in_randomly(p, room2)
+    game_map.place_in_randomly(pp, room2)
 
     return game_map

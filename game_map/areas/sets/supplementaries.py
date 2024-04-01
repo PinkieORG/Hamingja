@@ -8,6 +8,10 @@ class Point:
         self.y = y
         self.x = x
 
+    @staticmethod
+    def from_tuple(tup: Tuple):
+        return Point(*tup)
+
 
 class Size:
     def __init__(self, h: int, w: int):
