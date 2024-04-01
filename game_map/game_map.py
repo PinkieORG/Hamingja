@@ -34,16 +34,6 @@ def generate_dungeon(map_height, map_width) -> GameMap:
         game_map.place_in(p, room1)
 
     room2 = LRoom(Size(20, 20), Direction.EAST)
-    # room2.fill_border(tile_types.test1)
 
-    frontier = room1.frontier_in_direction(Direction.WEST)
-
-    frontier.transform(p, game_map.size)
-
-    g = game_map.difference(p, room1) + frontier
-
-    pp = g.fit_in(room2, frontier, (Direction.WEST,))
-
-    game_map.place_in_randomly(pp, room2)
-
+    game_map.place_next_to(room2, room1, Direction.WEST)
     return game_map

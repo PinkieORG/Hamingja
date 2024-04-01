@@ -9,6 +9,7 @@ from tcod.console import Console
 import tile_types
 from game_map.areas.sets.set import Set
 from game_map.areas.sets.supplementaries import Size, Point
+from game_map.direction.direction import Direction
 
 
 def from_set(set, fill_value):
@@ -84,14 +85,24 @@ class Area(Set):
         for child in self.children:
             child.render(console, self.origin)
 
-    # def place_next_to(
-    #     self,
-    #     to_place: Set,
-    #     neighbour: Set,
-    #     direction: Direction = Direction.get_random_direction(),
-    # ):
-    #     neighbour.frontier_in_direction(direction)
-    #     # clone = self.difference()
+    def place_next_to(
+        self,
+        to_place: Area,
+        neighbour: Area,
+        direction: Direction = Direction.get_random_direction(),
+    ):
+        if neighbour not in self.children:
+            raise ValueError("Neighbour not in children.")
+
+        frontier = neighbour.frontier_in_direction(direction)
+        frontier.transform(neighbour.origin, self.size)
+
+        clone = self.difference(neighbour.origin, neighbour)
+        clone += frontier
+
+        points = clone.fit_in(to_place, frontier, (direction,))
+
+        self.place_in_randomly(points, to_place)
 
     def place_in_randomly(self, place_points: List[Point], area: Area) -> bool:
         if len(place_points) != 0:
