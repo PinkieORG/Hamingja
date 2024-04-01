@@ -1,6 +1,5 @@
 import operator
 import sys
-from enum import Enum
 
 import numpy as np
 

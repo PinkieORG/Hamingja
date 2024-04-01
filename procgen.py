@@ -3,7 +3,7 @@ import random
 import numpy as np
 
 import tile_types
-from game_map import GameMap
+from game_map.game_map import GameMap
 
 
 def create_room():

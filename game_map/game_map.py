@@ -1,12 +1,10 @@
 import numpy as np
-from tcod.console import Console
 
 import tile_types
 from game_map.areas.area import Area
-from game_map.areas.sets.set import Set
 from game_map.areas.sets.supplementaries import Size, Point
 from game_map.direction.direction import Direction
-from game_map.rooms.rooms import LRoom, Room
+from game_map.rooms.rooms import LRoom
 
 
 class GameMap(Area):
@@ -15,15 +13,10 @@ class GameMap(Area):
         self.tiles = np.full(size.tuple(), fill_value=tile_types.wall)
 
 
-# class Wall(Area):
-#     def __init__(self, h: int, w: int):
-#         super().__init__(h, w)
-#         self.tiles = np.full((h, w), fill_value=tile_types.wall)
-#         self.object_area = np.full((h, w), fill_value=False)
-#         np.fill_diagonal(self.object_area, True)
-
-
 def generate_dungeon(map_height, map_width) -> GameMap:
+
+    # TEST AREA
+
     game_map = GameMap(Size(map_height, map_width))
 
     room1 = LRoom(Size(40, 30), Direction.WEST)
