@@ -65,3 +65,19 @@ class Area(Set):
             area.tiles,
             self.tiles[y : y + area.h, x : x + area.w],
         )
+
+    # def place_next_to(
+    #     self,
+    #     to_place: Set,
+    #     neighbour: Set,
+    #     direction: Direction = Direction.get_random_direction(),
+    # ):
+    #     neighbour.frontier_in_direction(direction)
+    #     # clone = self.difference()
+
+    def place_in_randomly(self, place_points: List, area: Area) -> bool:
+        if len(place_points) != 0:
+            point = random.choice(place_points)
+            self.place_in(point[0], point[1], area)
+            return True
+        return False
