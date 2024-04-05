@@ -4,7 +4,7 @@ from tcod.console import Console
 from tcod.context import Context
 
 from entity import Entity
-from game_map.areas.sets.supplementaries import Point
+from game_map.areas.tiles.supplementaries import Point
 from game_map.game_map import GameMap
 from input_handlers import EventHandler
 

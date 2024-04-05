@@ -5,7 +5,7 @@ import numpy as np
 
 
 def get_indexes_of_set(set):
-    return np.where(set.object_mask)
+    return np.where(set._tiles)
 
 
 def to_tuples(array):
