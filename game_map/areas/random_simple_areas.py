@@ -1,4 +1,5 @@
 import random
+from typing import Tuple
 
 from game_map.areas.area import SimpleArea
 
@@ -10,9 +11,12 @@ class DimensionRange:
         self.min_w = min_w
         self.max_w = max_w
 
+    def sample(self) -> Tuple:
+        h = random.randrange(self.min_h, self.max_h)
+        w = random.randrange(self.min_w, self.max_w)
+        return h, w
+
 
 def random_rectangle_area(dim_range: DimensionRange) -> SimpleArea:
     """Generates a random rectangular tiles of size based of input ranges."""
-    h = random.randrange(dim_range.min_h, dim_range.max_h)
-    w = random.randrange(dim_range.min_w, dim_range.max_w)
-    return SimpleArea((h, w))
+    return SimpleArea(dim_range.sample())
