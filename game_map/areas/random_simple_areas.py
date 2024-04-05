@@ -1,7 +1,6 @@
 import random
 
 from game_map.areas.area import SimpleArea
-from game_map.areas.tiles.tiles import Tiles
 
 
 class DimensionRange:
