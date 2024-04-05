@@ -5,7 +5,7 @@ import tile_types
 from game_map.areas.area import Area
 from game_map.areas.tiles.supplementaries import Point
 from game_map.direction.direction import Direction
-from game_map.rooms.rooms import LRoom
+from game_map.areas.rooms.rooms import LRoom
 
 
 class GameMap(Area):
@@ -21,13 +21,11 @@ def generate_dungeon(map_height, map_width) -> GameMap:
     game_map = GameMap((map_height, map_width))
 
     room1 = LRoom((40, 30), Direction.EAST)
-    room1.fill_border(tile_types.test1)
     room1.origin = Point(1, 40)
 
     game_map.place_in(room1)
 
     room2 = LRoom((20, 20), Direction.WEST)
-    room2.fill_border(tile_types.test2)
 
     p = game_map.fit_next_to(room2, room1, Direction.WEST)
 

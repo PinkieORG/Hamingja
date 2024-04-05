@@ -1,8 +1,8 @@
 import numpy as np
 from numpy.typing import NDArray
 
-from game_map.areas.tiles.tiles import Tiles
 from game_map.areas.tiles.supplementaries import Point
+from game_map.areas.tiles.tiles import Tiles
 from game_map.direction.direction import Direction
 
 

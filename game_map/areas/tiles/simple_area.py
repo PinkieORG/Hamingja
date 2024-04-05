@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from copy import deepcopy
 from typing import Tuple
+
 from game_map.areas.tiles.supplementaries import Point
 from game_map.areas.tiles.tiles import Tiles
 

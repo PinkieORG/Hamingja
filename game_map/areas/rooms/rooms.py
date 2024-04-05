@@ -15,7 +15,7 @@ class Room(Area):
     def __init__(self, size: Tuple):
         super().__init__(size)
         self.fill(tile_types.floor)
-        # self.fill_border(tile_types.object)
+        self.fill_border(tile_types.test2)
 
     @staticmethod
     def from_dim_range(dim_range: DimensionRange):
@@ -49,7 +49,6 @@ class LRoom(Room):
         self, size: Tuple, direction: Direction = Direction.get_random_direction()
     ):
         super().__init__(size)
-
         fill_dim_range = DimensionRange(
             self.h // 2.5,
             self.h // 1.5,
@@ -60,7 +59,7 @@ class LRoom(Room):
         p = self.fit_in_corner(rectangle, (direction,))[0]
         rectangle.origin = p
         self.fill_out(rectangle)
-        self.fill_border(tile_types.border)
+        self.fill_border(tile_types.test2)
 
 
 # class MultiRectangleRoom(Room):

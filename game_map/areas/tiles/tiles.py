@@ -13,6 +13,7 @@ import tile_types
 from game_map.areas.tiles.supplementaries import Point
 from game_map.direction.connectivity import Connectivity
 from game_map.direction.direction import Direction
+
 from utils import add_tuples, subtract_tuples
 
 
@@ -178,8 +179,8 @@ class Tiles:
     def corners(self, direction: Direction) -> Tiles:
         """Returns corners of the set in a given direction. The direction and its
         clockwise neighbour specifies the corner orientation."""
-        from game_map.areas.tiles.morphology.structural_element import corner_se
         from game_map.areas.tiles.morphology.operations import hit_or_miss
+        from game_map.areas.tiles.morphology.structural_element import corner_se
 
         return hit_or_miss(self, corner_se(direction))
 
