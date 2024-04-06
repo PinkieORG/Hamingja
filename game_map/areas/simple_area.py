@@ -61,3 +61,9 @@ class SimpleArea:
         stretched = deepcopy(self)
         stretched.stretch()
         return stretched
+
+    def inner_border(self):
+        return SimpleArea.create_from_tiles(self.tiles.inner_border())
+
+    def set_unplaceable(self, area: SimpleArea):
+        self.tiles.set_unplaceable(area.origin, area.tiles)
