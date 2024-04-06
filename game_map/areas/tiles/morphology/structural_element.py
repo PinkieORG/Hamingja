@@ -9,6 +9,7 @@ from game_map.direction.direction import Direction
 class StructuralElement:
     def __init__(self, mask: NDArray[np.int32], origin: Point):
         self.tiles = Tiles((mask.shape[0], mask.shape[1]))
+        self.tiles.tiles["mask"] = mask
         self.origin = origin
 
     @property
@@ -29,8 +30,8 @@ def corner_se(direction: Direction):
 
 
 CORNER_MASKS = [
-    StructuralElement(np.array([[0, 0], [1, 0]]), Point(0, 1)),
+    StructuralElement(np.array([[0, 0], [1, 0]]), Point(1, 0)),
     StructuralElement(np.array([[1, 0], [0, 0]]), Point(0, 0)),
-    StructuralElement(np.array([[0, 1], [0, 0]]), Point(1, 0)),
+    StructuralElement(np.array([[0, 1], [0, 0]]), Point(0, 1)),
     StructuralElement(np.array([[0, 0], [0, 1]]), Point(1, 1)),
 ]
