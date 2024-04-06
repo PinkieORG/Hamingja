@@ -60,6 +60,7 @@ class LRoom(Room):
         rectangle.origin = p
         self.fill_out(rectangle)
         self.fill_border(tile_types.test2)
+        self.set_unplaceable(self.inner_border())
 
 
 # class MultiRectangleRoom(Room):
