@@ -44,6 +44,15 @@ class Tiles:
         return self._tiles["mask"]
 
     @property
+    def placable(self):
+        return self._tiles["placeable"]
+
+    @mask.setter
+    def mask(self, mask):
+        self._tiles["mask"] = mask
+        self._tiles["placeable"] &= self._tiles["mask"]
+
+    @property
     def tiles(self):
         return self._tiles
 
@@ -80,6 +89,12 @@ class Tiles:
         result._tiles["mask"] = ~self.mask
         return result
 
+    def set_unplaceable(self, p: Point, other: tiles):
+        self.tiles["placeable"][p.y : p.y + other.h, p.x : p.x + other.w] = (
+            self.tiles["placeable"][p.y : p.y + other.h, p.x : p.x + other.w]
+            & ~other.mask
+        )
+
     def point_in_bbox(
         self,
         p: Point,
@@ -91,6 +106,13 @@ class Tiles:
         if not self.set_in_bbox(p, other):
             return False
         return np.all(~other.mask | self.mask[p.y : p.y + other.h, p.x : p.x + other.w])
+
+    def is_placable(self, p: Point, other: Tiles) -> bool:
+        if not self.set_in_bbox(p, other):
+            return False
+        return np.all(
+            ~other.placable | self.placable[p.y : p.y + other.h, p.x : p.x + other.w]
+        )
 
     def collides(self, p: Point, other: Tiles) -> bool:
         return np.all(
@@ -182,7 +204,9 @@ class Tiles:
         from game_map.areas.tiles.morphology.operations import hit_or_miss
         from game_map.areas.tiles.morphology.structural_element import corner_se
 
-        return hit_or_miss(self, corner_se(direction))
+        result = Tiles(self.size)
+        result.mask = hit_or_miss(self.placable, corner_se(direction))
+        return result
 
     def tighten(self):
         """Tightens the bounding box around the object area."""
@@ -209,9 +233,11 @@ class Tiles:
 
     def subtract_mask(self, p: Point, other: Tiles) -> None:
         """Subtracts two tiles at the given position."""
-        self.mask[p.y : p.y + other.h, p.x : p.x + other.w] = (
-            self.mask[p.y : p.y + other.h, p.x : p.x + other.w] & ~other.mask
+        mask_copy = deepcopy(self.mask)
+        mask_copy[p.y : p.y + other.h, p.x : p.x + other.w] = (
+            mask_copy[p.y : p.y + other.h, p.x : p.x + other.w] & ~other.mask
         )
+        self.mask = mask_copy
 
     def mask_subtraction(self, p: Point, other: Tiles) -> Tiles:
         difference = deepcopy(self)
@@ -253,7 +279,7 @@ class Tiles:
             for i in anchor_touch_indexes:
                 for j in set_touch_indexes:
                     origin = Point(*subtract_tuples(i, j))
-                    if not self.is_subset(origin, to_fit):
+                    if not self.is_placable(origin, to_fit):
                         continue
                     valid_points.append(origin)
         return valid_points
@@ -275,7 +301,7 @@ class Tiles:
         for i in anchor_touch_indexes:
             for j in set_touch_indexes:
                 origin = Point(*subtract_tuples(i, j))
-                if not self.is_subset(origin, to_fit):
+                if not self.is_placable(origin, to_fit):
                     continue
                 if anchor.collides(origin, to_fit):
                     continue

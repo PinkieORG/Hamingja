@@ -6,7 +6,7 @@ from typing import List, Union, Tuple
 
 from tcod.console import Console
 
-from game_map.areas.tiles.simple_area import SimpleArea
+from game_map.areas.simple_area import SimpleArea
 from game_map.areas.tiles.supplementaries import Point
 from game_map.direction.direction import Direction
 
@@ -65,9 +65,9 @@ class Area(SimpleArea):
     #         raise ValueError("Area to insert does not fit inside the bounding box.")
     #     self.tiles[p.y : p.y + area.size.h, p.x : p.x + area.size.w] = area.tiles
 
-    def place_in(self, area: Area) -> None:
+    def place_in(self, area: SimpleArea) -> None:
         """Places another areas inside the tiles."""
-        if not self.fits_in(area):
+        if not self.is_placable(area):
             raise ValueError("Area to insert does not fit inside the tiles.")
         area.parent = self
         self.children.append(area)
@@ -83,7 +83,7 @@ class Area(SimpleArea):
         for child in self.children:
             child.render(console, self.origin)
 
-    def place_in_randomly(self, place_points: List[Point], area: Area) -> bool:
+    def place_in_randomly(self, place_points: List[Point], area: SimpleArea) -> bool:
         if len(place_points) != 0:
             p = random.choice(place_points)
             area.origin = p
@@ -91,7 +91,11 @@ class Area(SimpleArea):
             return True
         return False
 
-    def fits_in(self, area: Area) -> bool:
+    def is_placable(self, area: SimpleArea) -> bool:
+        """Checks whether a given tiles is a subset of the tiles."""
+        return self.tiles.is_placable(area.origin, area.tiles)
+
+    def fits_in(self, area: SimpleArea) -> bool:
         """Checks whether a given tiles is a subset of the tiles."""
         return self.tiles.is_subset(area.origin, area.tiles)
 
