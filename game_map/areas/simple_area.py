@@ -3,6 +3,8 @@ from __future__ import annotations
 from copy import deepcopy
 from typing import Tuple
 
+import numpy as np
+
 from game_map.areas.tiles.supplementaries import Point
 from game_map.areas.tiles.tiles import Tiles
 
@@ -67,3 +69,12 @@ class SimpleArea:
 
     def set_unplaceable(self, area: SimpleArea):
         self.tiles.set_unplaceable(area.origin, area.tiles)
+
+    def is_inside(self, p: Point) -> bool:
+        return self.tiles.point_in_bbox(p)
+
+    def volume(self) -> int:
+        return np.count_nonzero(self.tiles.mask)
+
+    def density(self) -> float:
+        return (self.volume() - np.count_nonzero(self.tiles.placable)) / self.volume()
