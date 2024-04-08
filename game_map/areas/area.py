@@ -71,6 +71,7 @@ class Area(SimpleArea):
             raise ValueError("Area to insert does not fit inside the tiles.")
         area.parent = self
         self.children.append(area)
+        self.set_unplaceable(area)
 
     def remove(self, area: Area) -> Union[Area, None]:
         if area in self.children:
