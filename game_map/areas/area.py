@@ -78,7 +78,7 @@ class Area(SimpleArea):
             self.children.remove(area)
         return None
 
-    def render(self, console: Console, parent_origin: Point):
+    def render(self, console: Console, parent_origin: Point) -> None:
         global_origin = parent_origin + self.origin
         self.tiles.render(console, global_origin)
         for child in self.children:
