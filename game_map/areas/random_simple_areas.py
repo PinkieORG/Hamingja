@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import random
 from typing import Tuple
 
@@ -10,6 +12,15 @@ class DimensionRange:
         self.max_h = max_h
         self.min_w = min_w
         self.max_w = max_w
+
+    @staticmethod
+    def from_size(size: Tuple, factors: Tuple[float, float]) -> DimensionRange:
+        return DimensionRange(
+            int(size[0] * factors[0]),
+            int(size[0] * factors[1]),
+            int(size[1] * factors[0]),
+            int(size[1] * factors[1]),
+        )
 
     def sample(self) -> Tuple:
         h = random.randrange(self.min_h, self.max_h)
