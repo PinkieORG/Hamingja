@@ -274,6 +274,15 @@ class Tiles:
             self.mask
         ] = self._tiles["dark"][self.mask]
 
+    def fit_in(self, to_fit: Tiles) -> List[Point]:
+        valid_points = []
+        mask_indexes = self.get_mask_indexes()
+        for i in mask_indexes:
+            origin = Point.from_tuple(i)
+            if self.is_placable(origin, to_fit):
+                valid_points.append(origin)
+        return valid_points
+
     def fit_in_direction(
         self,
         to_fit: Tiles,
