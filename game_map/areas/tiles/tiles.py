@@ -47,6 +47,10 @@ class Tiles:
     def placable(self):
         return self._tiles["placeable"]
 
+    @property
+    def walkable(self):
+        return self._tiles["walkable"]
+
     @mask.setter
     def mask(self, mask):
         self._tiles["mask"] = mask
