@@ -158,8 +158,10 @@ class Area(SimpleArea):
         self,
         to_place: SimpleArea,
         neighbour: SimpleArea,
-        direction: Direction = Direction.get_random_direction(),
+        direction: Direction = None,
     ) -> List[Point]:
+        if direction is None:
+            direction = Direction.get_random_direction()
         if neighbour not in self.children:
             raise ValueError("Neighbour not in children.")
 
@@ -171,4 +173,4 @@ class Area(SimpleArea):
         clone = deepcopy(self)
         clone.fill_out(neighbour)
         clone.fill_in(frontier)
-        return clone.fit_in_direction(to_place, frontier, (direction,))
+        return clone.fit_in_touching(to_place, frontier, direction)
