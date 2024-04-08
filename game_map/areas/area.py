@@ -104,6 +104,9 @@ class Area(SimpleArea):
         """Checks whether the intersection of two tiles is empty."""
         return self.tiles.collides(area.origin, area.tiles)
 
+    def fit_in(self, to_fit: SimpleArea) -> List[Point]:
+        return self.tiles.fit_in(to_fit.tiles)
+
     def fit_in_direction(
         self,
         to_fit: SimpleArea,
