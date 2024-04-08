@@ -27,36 +27,6 @@ class Area(SimpleArea):
             or other not in self.children
         )
 
-    # TODO: What happens to the children?
-    # def __sub__(self, other: Area) -> Area:
-    #     if not self.is_related(other):
-    #         raise ValueError("Invalid operation.")
-    #     if self.parent is other.parent and self.parent is not None:
-    #         result_set = Set.__sub__(
-    #             self.transformed(self.origin, self.parent.size),
-    #             other.transformed(other.origin, self.parent.size),
-    #         )
-    #         copy = deepcopy(self).transformed(self.origin,self.parent.size)
-    #
-    #         result = Area.create_from_set(result_set)
-    #
-    #         for child in self.children:
-    #
-    #         result_set.tighten()
-    #         if result_set.size.is_zero():
-    #             return Area(Size(0, 0), True)
-    #         return result
-    #
-    #     if self is other.parent:
-    #        result_set = super().__sub__(other.transformed(other.origin, other.parent))
-    #         result = deepcopy(self)
-    #         result.object_mask = deepcopy(result_set.object_mask)
-    #         return result
-    #     if other is self.parent:
-    #         return other - self
-
-    # TODO method to merge tiles from children.
-
     # def place_in_background(self, p: Point, area: Area) -> None:
     #     """Places another areas inside the bounding box without tiles check."""
     #     if not self.point_in_bbox(p) or not self.point_in_bbox(
