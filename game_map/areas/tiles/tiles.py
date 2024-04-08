@@ -115,7 +115,7 @@ class Tiles:
         if not self.set_in_bbox(p, other):
             return False
         return np.all(
-            ~other.placable | self.placable[p.y : p.y + other.h, p.x : p.x + other.w]
+            ~other.mask | self.placable[p.y : p.y + other.h, p.x : p.x + other.w]
         )
 
     def collides(self, p: Point, other: Tiles) -> bool:
