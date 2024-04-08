@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from game_map.areas.tiles.supplementaries import Point
+
 if TYPE_CHECKING:
     from engine import Engine
     from entity import Entity
@@ -32,12 +34,11 @@ class MovementAction(Action):
         self.dx = dx
 
     def perform(self, engine: Engine, entity: Entity) -> None:
-        dest_y = entity.y + self.dy
-        dest_x = entity.x + self.dx
+        dest = Point(entity.y + self.dy, entity.x + self.dx)
 
-        if not engine.game_map.point_in_bbox(dest_y, dest_x):
+        if not engine.game_map.is_inside(dest):
             return
-        if not engine.game_map.tiles["walkable"][dest_y, dest_x]:
+        if not engine.game_map.tiles.walkable[dest.y, dest.x]:
             return
 
         entity.move(self.dy, self.dx)
