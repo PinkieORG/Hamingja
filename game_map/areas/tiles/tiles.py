@@ -223,6 +223,12 @@ class Tiles:
             Point(p.y + set.h - 1, p.x + set.w - 1)
         )
 
+    def merge_mask(self, p: Point, other: Tiles) -> None:
+        """Performs a union of two tiles at the given position."""
+        mask_copy = deepcopy(self.mask)
+        mask_copy[p.y : p.y + other.h, p.x : p.x + other.w] = other.mask
+        self.mask = mask_copy
+
     def merge(self, p: Point, other: Tiles) -> None:
         """Performs a union of two tiles at the given position."""
         self._tiles[p.y : p.y + other.h, p.x : p.x + other.w][other.mask] = (
