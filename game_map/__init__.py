@@ -1,4 +1,4 @@
-from game_map.areas.game_map import GameMap, generate_dungeon
+from game_map.areas.game_map import GameMap
 
 __all__ = ["GameMap"]
 

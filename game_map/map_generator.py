@@ -1,17 +1,20 @@
 import random
 from typing import Tuple
 
-from game_map.areas.area import Area
+from game_map import GameMap
 from game_map.areas.random_simple_areas import DimensionRange
 from game_map.areas.rooms.rooms import LRoom, Room
+from game_map.direction.direction import Direction
 
 
 class MapGenerator:
     def __init__(
-        self, area: Area, room_size_factors: Tuple[float, float], density: float
+        self, game_map: GameMap, room_size_factors: Tuple[float, float], density: float
     ):
-        self.area = area
-        self.room_size_range = DimensionRange.from_size(area.size, room_size_factors)
+        self.game_map = game_map
+        self.room_size_range = DimensionRange.from_size(
+            game_map.size, room_size_factors
+        )
         self.density = density
 
     def get_room(self):

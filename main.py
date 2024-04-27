@@ -4,7 +4,8 @@ import tcod
 
 from engine import Engine
 from entity import Entity
-from game_map import generate_dungeon
+from game_map import GameMap
+from game_map.map_generator import MapGenerator
 from input_handlers import EventHandler
 
 
@@ -23,7 +24,7 @@ def main() -> None:
     player = Entity(5, 15, "@", (255, 50, 50))
     npc = Entity(int(2), int(screen_width / 2), "g", (255, 255, 255))
     entities = {npc, player}
-    game_map = generate_dungeon(map_height, map_width)
+    game_map = GameMap((map_height, map_width))
 
     engine = Engine(
         entities=entities,
@@ -32,6 +33,8 @@ def main() -> None:
         player=player,
     )
 
+    generator = MapGenerator(game_map, (0.1, 0.3), 0.7)
+
     with tcod.context.new(
         columns=screen_width,
         rows=screen_height,
@@ -39,6 +42,7 @@ def main() -> None:
         title="Yet Another Roguelike Tutorial",
     ) as context:
         root_console = tcod.console.Console(width=screen_width, height=screen_height)
+        generator.generate()
         while True:
             engine.render(console=root_console, context=context)
             events = tcod.event.wait()
