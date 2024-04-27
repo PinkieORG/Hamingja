@@ -3,12 +3,36 @@ from typing import Tuple
 
 import tile_types
 from game_map.areas.area import Area
+from game_map.areas.prototype_areas.prototype_areas import create_carpet, create_column
 from game_map.areas.random_simple_areas import DimensionRange, random_rectangle_area
 from game_map.direction.direction import Direction
 
 
 # def generate_multi_room(width: int, height: int, subroom_dim_range:
 #    DimensionRange):
+
+
+def prototype_room(size: Tuple):
+    room = LRoom(size)
+    carpet_size = DimensionRange(
+        room.h // 4,
+        room.h // 3,
+        room.w // 4,
+        room.w // 3,
+    ).sample()
+    carpet = create_carpet(carpet_size)
+    p = room.fit_in_corner(carpet)
+    room.place_in_randomly(p, carpet)
+    room.fill_border(tile_types.wall)
+    for i in range(3):
+        column = create_column()
+        p = room.fit_in_touching_border(column, Direction.WEST, 1)
+        room.place_in_randomly(p, column)
+    for i in range(3):
+        column = create_column()
+        p = room.fit_in_touching_border(column, Direction.NORTH, 1)
+        room.place_in_randomly(p, column)
+    return room
 
 
 class Room(Area):
@@ -45,9 +69,9 @@ class Room(Area):
 
 
 class LRoom(Room):
-    def __init__(
-        self, size: Tuple, direction: Direction = Direction.get_random_direction()
-    ):
+    def __init__(self, size: Tuple, direction: Direction = None):
+        if direction is None:
+            direction = Direction.get_random_direction()
         super().__init__(size)
         fill_dim_range = DimensionRange(
             self.h // 2.5,
