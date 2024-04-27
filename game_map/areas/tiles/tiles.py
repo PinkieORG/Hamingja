@@ -14,7 +14,7 @@ from game_map.areas.tiles.supplementaries import Point
 from game_map.direction.connectivity import Connectivity
 from game_map.direction.direction import Direction
 
-from utils import add_tuples, subtract_tuples
+from utils.utils import add_tuples, subtract_tuples
 
 
 class Tiles:

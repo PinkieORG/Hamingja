@@ -2,7 +2,7 @@ import numpy as np
 
 from game_map.areas.tiles.morphology.structural_element import StructuralElement
 from game_map.areas.tiles.supplementaries import Point
-from utils import subtract_tuples
+from utils.utils import subtract_tuples
 
 
 def hit_or_miss(in_tiles, se: StructuralElement):
