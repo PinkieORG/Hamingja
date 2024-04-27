@@ -27,14 +27,6 @@ class Area(SimpleArea):
             or other not in self.children
         )
 
-    # def place_in_background(self, p: Point, area: Area) -> None:
-    #     """Places another areas inside the bounding box without tiles check."""
-    #     if not self.point_in_bbox(p) or not self.point_in_bbox(
-    #         Point(p.y + area.size.h - 1, p.x + area.size.w - 1)
-    #     ):
-    #         raise ValueError("Area to insert does not fit inside the bounding box.")
-    #     self.tiles[p.y : p.y + area.size.h, p.x : p.x + area.size.w] = area.tiles
-
     def place_in(self, area: SimpleArea) -> None:
         """Places another areas inside the tiles."""
         if not self.is_placable(area):
