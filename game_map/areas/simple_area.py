@@ -43,10 +43,11 @@ class SimpleArea:
         self.tiles.tiles[border_mask] = fill_value
 
     def fill_in(self, area: SimpleArea) -> None:
-        """Fills the tiles with s value in areas defined by the given tiles."""
+        """Fills the tiles with a value in the given area."""
         self.tiles.merge(area.origin, area.tiles)
 
     def fill_out(self, area: SimpleArea) -> None:
+        """Sets the tiles to not belongs to the object."""
         self.tiles.subtract_mask(area.origin, area.tiles)
 
     def stretch(self) -> None:
@@ -65,16 +66,20 @@ class SimpleArea:
         return stretched
 
     def inner_border(self):
+        """Returns the inner border of the area."""
         return SimpleArea.create_from_tiles(self.tiles.inner_border())
 
     def set_unplaceable(self, area: SimpleArea):
         self.tiles.set_unplaceable(area.origin, area.tiles)
 
     def is_inside(self, p: Point) -> bool:
+        """Checks if the point is inside the bounding box."""
         return self.tiles.point_in_bbox(p)
 
     def volume(self) -> int:
+        """Returns the number of pixels of the mask."""
         return np.count_nonzero(self.tiles.mask)
 
     def density(self) -> float:
+        """Returns the ratio of placable tiles to all the tiles."""
         return (self.volume() - np.count_nonzero(self.tiles.placable)) / self.volume()

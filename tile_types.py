@@ -10,6 +10,8 @@ graphic_dt = np.dtype(
     ]
 )
 
+""" mask: Defines which tiles does the object encompasses.
+    placable: Defines which tiles can be placed on."""
 tile_dt = np.dtype(
     [
         ("mask", np.bool_),
