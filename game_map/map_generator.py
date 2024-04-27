@@ -1,3 +1,4 @@
+import logging
 import random
 from typing import Tuple
 
@@ -27,19 +28,27 @@ class MapGenerator:
         return room
 
     def generate(self):
+        logger = logging.getLogger()
+        logging.basicConfig(level=logging.INFO)
         start_room = self.get_room()
-        self.area.place_in_randomly(self.area.fit_in(start_room), start_room)
-        neighbour = start_room
-        tries = 0
-        while self.area.density() < self.density:
-            room = self.get_room()
-            placed = False
-            while not placed:
-                placed = self.area.place_in_randomly(
-                    self.area.fit_next_to(room, neighbour), room
+        self.game_map.place_in_randomly(self.game_map.fit_in(start_room), start_room)
+        to_process = set()
+        to_process.add(start_room)
+        while self.game_map.density() < self.density:
+            tries = 0
+            neighbour = to_process.pop()
+            while tries < 20:
+                room = self.get_room()
+                placed = self.game_map.place_in_randomly(
+                    self.game_map.fit_next_to(room, neighbour), room
                 )
-                if tries > 7:
-                    return
-                else:
-                    tries += 1
-            neighbour = room
+                logger.info(
+                    ("Tried to place ,", room.size, "at ", room.origin.y, room.origin.x)
+                )
+
+                if placed:
+                    print("placed ", room.size, "at ", room.origin.y, room.origin.x)
+                    to_process.add(room)
+                tries += 1
+            if len(to_process) == 0:
+                return
