@@ -41,7 +41,7 @@ class Area(SimpleArea):
             raise ValueError("Area to insert does not fit inside the tiles.")
         area.parent = self
         self.children.append(area)
-        self.set_unplaceable(area)
+        self.set_unplaceable(area.uncover())
 
     def remove(self, area: Area) -> Union[Area, None]:
         if area in self.children:
@@ -74,66 +74,13 @@ class Area(SimpleArea):
         """Checks whether the intersection of two tiles is empty."""
         return self.tiles.collides(area.origin, area.tiles)
 
-    def fit_in(self, to_fit: SimpleArea) -> List[Point]:
-        return self.tiles.fit_in(to_fit.tiles)
-
-    def fit_in_direction(
-        self,
-        to_fit: SimpleArea,
-        anchor: SimpleArea,
-        directions: Tuple = Direction.get_all_directions(),
-    ) -> List[Point]:
-        """Fits in another tiles on the points specified by the anchor in specific
-        direction."""
-        return self.tiles.fit_in_direction(
-            to_fit.tiles, anchor.stretched().tiles, directions
-        )
-
-    def fit_in_touching(
-        self,
-        to_fit: SimpleArea,
-        anchor: SimpleArea,
-        direction: Direction,
-        offset: int = 0,
-    ) -> List[Point]:
-        """Fits in another tiles touching the anchor in the given direction. The new
-        tiles will not collide with the anchor."""
-        return self.tiles.fit_in_touching(
-            to_fit.tiles, anchor.stretched().tiles, direction, offset
-        )
-
-    def fit_in_touching_border(
-        self,
-        to_fit: SimpleArea,
-        direction: Direction,
-        border_offset: int = 0,
-    ) -> List[Point]:
-        """Fits in another areas touching the inner border with"""
-        return self.tiles.fit_in_touching(
-            to_fit.tiles, self.tiles.inner_border(), direction, border_offset
-        )
-
-    def fit_in_corner(
-        self, to_fit: SimpleArea, directions: Tuple = Direction.get_all_directions()
-    ) -> List[Point]:
-        """Places an areas in the corner. The areas will be touching the wall
-        in defined direction and the next wall clockwise of that direction.
-        For example: if direction is NORTH then the areas will be touching
-        NORTH and EAST walls."""
-
-        result = []
-        for direction in directions:
-            result += self.tiles.fit_in_direction(
-                to_fit.tiles, self.tiles.corners(direction), (direction.get_opposite(),)
-            )
-        return result
-
     def fit_next_to(
         self,
         to_place: SimpleArea,
         neighbour: SimpleArea,
         direction: Direction = None,
     ) -> List[Point]:
+        """Fits in another area next to a given child of this area."""
         if direction is None:
             direction = Direction.get_random_direction()
         if neighbour not in self.children:
@@ -147,4 +94,4 @@ class Area(SimpleArea):
         clone = deepcopy(self)
         clone.fill_out(neighbour)
         clone.fill_in(frontier)
-        return clone.fit_in_touching(to_place, frontier, direction)
+        return clone.fit_in_direction(to_place, frontier, (direction,))
