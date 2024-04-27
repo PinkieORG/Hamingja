@@ -2,7 +2,7 @@ from typing import Optional
 
 import tcod.event
 
-from actions import Action, EscapeAction, MovementAction
+from actions import Action, EscapeAction, MovementAction, MapGenerationAction
 
 
 class EventHandler(tcod.event.EventDispatch[Action]):
@@ -23,6 +23,8 @@ class EventHandler(tcod.event.EventDispatch[Action]):
         elif key == tcod.event.KeySym.RIGHT:
             action = MovementAction(dy=0, dx=1)
 
+        elif key == tcod.event.KeySym.SPACE:
+            action = MapGenerationAction()
         elif key == tcod.event.KeySym.ESCAPE:
             action = EscapeAction()
 

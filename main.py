@@ -1,11 +1,16 @@
 #!/usr/bin/env python3
+from time import sleep
+
 import tcod
 
 
 from engine import Engine
 from entity import Entity
 from game_map import GameMap
-from game_map.map_generator import MapGenerator
+from game_map.map_generators.abstract_map_generator import AbstractMapGenerator
+from game_map.map_generators.iterable_generators.room_neighbours_generator import (
+    RoomNeighboursGenerator,
+)
 from input_handlers import EventHandler
 
 
@@ -26,14 +31,16 @@ def main() -> None:
     entities = {npc, player}
     game_map = GameMap((map_height, map_width))
 
+    generator = RoomNeighboursGenerator(game_map, (0.1, 0.3), 0.7)
+    generator.prepare()
+
     engine = Engine(
         entities=entities,
         event_handler=event_handler,
         game_map=game_map,
         player=player,
+        map_generator=generator,
     )
-
-    generator = MapGenerator(game_map, (0.1, 0.3), 0.7)
 
     with tcod.context.new(
         columns=screen_width,
@@ -42,7 +49,6 @@ def main() -> None:
         title="Yet Another Roguelike Tutorial",
     ) as context:
         root_console = tcod.console.Console(width=screen_width, height=screen_height)
-        generator.generate()
         while True:
             engine.render(console=root_console, context=context)
             events = tcod.event.wait()

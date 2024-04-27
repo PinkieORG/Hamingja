@@ -6,6 +6,9 @@ from tcod.context import Context
 from entity import Entity
 from game_map import GameMap
 from game_map.areas.tiles.supplementaries import Point
+from game_map.map_generators.iterable_generators.iterable_generator import (
+    IterableGenerator,
+)
 from input_handlers import EventHandler
 
 
@@ -16,12 +19,13 @@ class Engine:
         event_handler: EventHandler,
         game_map: GameMap,
         player: Entity,
+        map_generator: IterableGenerator,
     ):
-
         self.entities = entities
         self.event_handler = event_handler
         self.game_map = game_map
         self.player = player
+        self.map_generator = map_generator
 
     def handle_events(self, events: Iterable[Any]) -> None:
         for event in events:

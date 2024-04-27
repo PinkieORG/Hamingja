@@ -81,3 +81,10 @@ test1 = new_tile(
     transparent=False,
     dark=(ord("B"), (255, 0, 255), (255, 0, 255)),
 )
+
+
+active_room = new_tile(
+    walkable=False,
+    transparent=False,
+    dark=(ord("#"), (255, 255, 255), (255, 0, 0)),
+)
