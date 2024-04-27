@@ -43,9 +43,7 @@ class RoomNeighboursGenerator(IterableGenerator):
             neighbour.fill_border(active_room)
         while tries < 20:
             room = self.get_room()
-            placed = self.game_map.place_in_randomly(
-                self.game_map.fit_next_to(room, neighbour), room
-            )
+            placed = self.game_map.place_room_next_to(room, neighbour)
             self.logger.info(
                 ("Tried to place ,", room.size, "at ", room.origin.y, room.origin.x)
             )
