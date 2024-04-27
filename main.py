@@ -31,15 +31,14 @@ def main() -> None:
     entities = {npc, player}
     game_map = GameMap((map_height, map_width))
 
-    generator = RoomNeighboursGenerator(game_map, (0.1, 0.3), 0.7)
-    generator.prepare()
+    generator = RoomNeighboursGenerator(game_map, (0.1, 0.3), 0.5)
+    generator.generate()
 
     engine = Engine(
         entities=entities,
         event_handler=event_handler,
         game_map=game_map,
         player=player,
-        map_generator=generator,
     )
 
     with tcod.context.new(

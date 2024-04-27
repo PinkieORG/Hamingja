@@ -42,8 +42,3 @@ class MovementAction(Action):
             return
 
         entity.move(self.dy, self.dx)
-
-
-class MapGenerationAction(Action):
-    def perform(self, engine: Engine, entity: Entity) -> None:
-        engine.map_generator.add_room()

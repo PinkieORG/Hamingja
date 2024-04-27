@@ -19,13 +19,11 @@ class Engine:
         event_handler: EventHandler,
         game_map: GameMap,
         player: Entity,
-        map_generator: IterableGenerator,
     ):
         self.entities = entities
         self.event_handler = event_handler
         self.game_map = game_map
         self.player = player
-        self.map_generator = map_generator
 
     def handle_events(self, events: Iterable[Any]) -> None:
         for event in events:
