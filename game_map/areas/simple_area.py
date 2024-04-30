@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+import random
 from copy import deepcopy
 from typing import Tuple, List
 
 import numpy as np
+from tcod.console import Console
 
 from game_map.areas.tiles.supplementaries import Point
 from game_map.areas.tiles.tiles import Tiles
@@ -12,7 +14,6 @@ from game_map.direction.direction import Direction
 
 class SimpleArea:
     def __init__(self, size: Tuple, origin: Point = Point(0, 0)):
-        self.parent = None
         self.origin = origin
         self.tiles = Tiles(size)
 
@@ -21,6 +22,14 @@ class SimpleArea:
         result = SimpleArea(in_tiles.size)
         result.tiles = in_tiles
         return result
+
+    @staticmethod
+    def intersection(first: SimpleArea, second: SimpleArea) -> SimpleArea:
+        local_point = second.origin - first.origin
+        clipped, origin = second.tiles.clipped(local_point, first.size)
+        intersection = SimpleArea.create_from_tiles(clipped)
+        intersection.origin = origin + first.origin
+        return intersection
 
     @property
     def size(self):
@@ -58,19 +67,19 @@ class SimpleArea:
         filled_out.fill_out(area)
         return filled_out
 
-    def stretch(self) -> None:
-        """Transforms the set as if it was inside a set of certain size on a certain
+    def stretch(self, size: Tuple) -> None:
+        """Transforms the set as if it was inside a set of certain size at the origin
         position."""
-        stretched_tiles = Tiles(self.parent.size, empty=True)
+        stretched_tiles = Tiles(size, empty=True)
         stretched_tiles.merge(self.origin, self.tiles)
         self.origin = Point(0, 0)
         self.tiles = stretched_tiles
 
-    def stretched(self) -> SimpleArea:
-        """Returns the set as if it was inside a set of certain size of a certain
+    def stretched(self, size: Tuple) -> SimpleArea:
+        """Returns the set as if it was inside a set of certain size at the origin
         position."""
         stretched = deepcopy(self)
-        stretched.stretch()
+        stretched.stretch(size)
         return stretched
 
     def inner_border(self):
@@ -95,6 +104,15 @@ class SimpleArea:
     def uncover(self):
         return self.filled_out(self.inner_border())
 
+    def get_random_coordination(self) -> Point:
+        points = self.tiles.get_mask_indexes()
+        local_point = Point(*random.choice(points))
+        return local_point + self.origin
+
+    def render(self, console: Console, parent_origin: Point) -> None:
+        global_origin = parent_origin + self.origin
+        self.tiles.render(console, global_origin)
+
     def fit_in(self, to_fit: SimpleArea) -> List[Point]:
         return self.tiles.fit_in(to_fit.tiles)
 
@@ -107,7 +125,7 @@ class SimpleArea:
         """Fits in another area on the points specified by the anchor in specific
         direction."""
         return self.tiles.fit_in_direction(
-            to_fit.tiles, anchor.stretched().tiles, directions
+            to_fit.tiles, anchor.stretched(self.size).tiles, directions
         )
 
     def fit_in_touching(

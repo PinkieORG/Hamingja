@@ -14,7 +14,7 @@ from game_map.areas.tiles.supplementaries import Point
 from game_map.direction.connectivity import Connectivity
 from game_map.direction.direction import Direction
 
-from utils import add_tuples, subtract_tuples
+from utils.utils import add_tuples, subtract_tuples
 
 
 class Tiles:
@@ -154,7 +154,7 @@ class Tiles:
             & (indexes[:, 1] < self.w)
         ]
 
-    def clipped(self, p: Point, size: Tuple) -> Tiles:
+    def clipped(self, p: Point, size: Tuple) -> (Tiles, Point):
         """Returns a clipped tiles as if it was put in another tiles of specific size in
         the specific position."""
         yl = abs(min(0, p.y))
@@ -163,11 +163,11 @@ class Tiles:
         xr = min(size[1] - p.x, self.w)
 
         if xl > xr or yl > yr:
-            return Tiles((0, 0))
+            return Tiles((0, 0)), Point(0, 0)
 
-        clipped = deepcopy(self)
-        clipped._tiles["mask"] = self.mask[yl:yr, xl:xr]
-        return clipped
+        clipped = Tiles((yr - yl, xr - xl), empty=True)
+        clipped._tiles = deepcopy(self._tiles[yl:yr, xl:xr])
+        return clipped, Point(max(0, p.y), max(0, p.x))
 
     def moved_mask(self, direction: Direction, offset: int = 1) -> Tiles:
         moved = Tiles(self.size, empty=True)

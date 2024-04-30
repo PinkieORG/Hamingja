@@ -69,19 +69,29 @@ border = new_tile(
     dark=(ord("B"), (255, 0, 255), (255, 0, 255)),
 )
 
-test2 = new_tile(
+green = new_tile(
     walkable=False,
     transparent=False,
-    dark=(ord("B"), (0, 153, 0), (0, 153, 0)),
+    dark=(ord("B"), (124, 252, 0), (124, 252, 0)),
 )
 
-
-test1 = new_tile(
+red = new_tile(
     walkable=False,
     transparent=False,
-    dark=(ord("B"), (255, 0, 255), (255, 0, 255)),
+    dark=(ord("B"), (255, 0, 0), (255, 0, 0)),
 )
 
+yellow = new_tile(
+    walkable=False,
+    transparent=False,
+    dark=(ord("B"), (255, 255, 0), (255, 255, 0)),
+)
+
+border_debug = new_tile(
+    walkable=False,
+    transparent=False,
+    dark=(ord("B"), (0, 0, 0), (255, 51, 204)),
+)
 
 active_room = new_tile(
     walkable=False,

@@ -19,27 +19,12 @@ class Area(SimpleArea):
     def __init__(self, size: Tuple, origin: Point = Point(0, 0)):
         super().__init__(size, origin)
         self.children = []
+        self.postfilter = []
 
-    def is_related(self, other: Area) -> bool:
-        return (
-            self.parent is not other.parent
-            or other is not self.parent
-            or other not in self.children
-        )
-
-    # def place_in_background(self, p: Point, area: Area) -> None:
-    #     """Places another areas inside the bounding box without tiles check."""
-    #     if not self.point_in_bbox(p) or not self.point_in_bbox(
-    #         Point(p.y + area.size.h - 1, p.x + area.size.w - 1)
-    #     ):
-    #         raise ValueError("Area to insert does not fit inside the bounding box.")
-    #     self.tiles[p.y : p.y + area.size.h, p.x : p.x + area.size.w] = area.tiles
-
-    def place_in(self, area: SimpleArea) -> None:
+    def place_in(self, area: SimpleArea, force: bool = False) -> None:
         """Places another areas inside the tiles."""
-        if not self.is_placable(area):
+        if force and not self.is_placable(area):
             raise ValueError("Area to insert does not fit inside the tiles.")
-        area.parent = self
         self.children.append(area)
         self.set_unplaceable(area.uncover())
 
@@ -49,10 +34,11 @@ class Area(SimpleArea):
         return None
 
     def render(self, console: Console, parent_origin: Point) -> None:
-        global_origin = parent_origin + self.origin
-        self.tiles.render(console, global_origin)
+        super().render(console, parent_origin)
         for child in self.children:
             child.render(console, self.origin)
+        for po in self.postfilter:
+            po.render(console, self.origin)
 
     def place_in_randomly(self, place_points: List[Point], area: SimpleArea) -> bool:
         if len(place_points) != 0:
@@ -90,7 +76,6 @@ class Area(SimpleArea):
             neighbour.tiles.frontier_in_direction(direction)
         )
         frontier.origin = copy(neighbour.origin)
-        frontier.parent = self
         clone = deepcopy(self)
         clone.fill_out(neighbour)
         clone.fill_in(frontier)

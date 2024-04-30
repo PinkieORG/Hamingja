@@ -7,7 +7,7 @@ from game_map.areas.rooms.rooms import LRoom, Room
 from game_map.map_generators.iterable_generators.iterable_generator import (
     IterableGenerator,
 )
-from tile_types import active_room, test1, test2
+from tile_types import active_room, wall, red
 
 
 class RoomNeighboursGenerator(IterableGenerator):
@@ -36,16 +36,15 @@ class RoomNeighboursGenerator(IterableGenerator):
             self.logger.info("No more rooms to process.")
             return
         tries = 0
-        for room in self.to_process:
-            room.fill_border(test2)
+        if __debug__:
+            for room in self.to_process:
+                room.fill_border(active_room)
         neighbour = random.choice(self.to_process)
         if __debug__:
             neighbour.fill_border(active_room)
         while tries < 20:
             room = self.get_room()
-            placed = self.game_map.place_in_randomly(
-                self.game_map.fit_next_to(room, neighbour), room
-            )
+            placed = self.game_map.place_room_next_to(room, neighbour)
             self.logger.info(
                 ("Tried to place ,", room.size, "at ", room.origin.y, room.origin.x)
             )
@@ -58,4 +57,4 @@ class RoomNeighboursGenerator(IterableGenerator):
             tries += 1
         self.to_process.remove(neighbour)
         if __debug__:
-            neighbour.fill_border(test1)
+            neighbour.fill_border(wall)

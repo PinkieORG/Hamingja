@@ -8,8 +8,14 @@ class Point:
         self.y = y
         self.x = x
 
+    def __eq__(self, other):
+        return self.x == other.x and self.y == other.y
+
     def __add__(self, other: Point):
         return Point(self.y + other.y, self.x + other.x)
+
+    def __sub__(self, other: Point):
+        return Point(self.y - other.y, self.x - other.x)
 
     @staticmethod
     def from_tuple(tup: Tuple):
