@@ -163,11 +163,11 @@ class Tiles:
         xr = min(size[1] - p.x, self.w)
 
         if xl > xr or yl > yr:
-            return Tiles((0, 0))
+            return Tiles((0, 0)), Point(0, 0)
 
         clipped = Tiles((yr - yl, xr - xl), empty=True)
         clipped._tiles = deepcopy(self._tiles[yl:yr, xl:xr])
-        return clipped, Point(yl, xl)
+        return clipped, Point(max(0, p.y), max(0, p.x))
 
     def moved_mask(self, direction: Direction, offset: int = 1) -> Tiles:
         moved = Tiles(self.size, empty=True)
