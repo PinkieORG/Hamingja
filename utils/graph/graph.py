@@ -17,3 +17,9 @@ class Graph:
         for vertex in self.vertices:
             if vertex.value == element:
                 vertex.add_neighbour(neighbour)
+
+    def get_neighbours(self, element: Any) -> List[Any]:
+        for vertex in self.vertices:
+            if vertex.value == element:
+                return vertex.neighbours
+        return []
