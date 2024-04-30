@@ -154,7 +154,7 @@ class Tiles:
             & (indexes[:, 1] < self.w)
         ]
 
-    def clipped(self, p: Point, size: Tuple) -> Tiles:
+    def clipped(self, p: Point, size: Tuple) -> (Tiles, Point):
         """Returns a clipped tiles as if it was put in another tiles of specific size in
         the specific position."""
         yl = abs(min(0, p.y))
@@ -167,7 +167,7 @@ class Tiles:
 
         clipped = Tiles((yr - yl, xr - xl), empty=True)
         clipped._tiles = deepcopy(self._tiles[yl:yr, xl:xr])
-        return clipped
+        return clipped, Point(yl, xl)
 
     def moved_mask(self, direction: Direction, offset: int = 1) -> Tiles:
         moved = Tiles(self.size, empty=True)
