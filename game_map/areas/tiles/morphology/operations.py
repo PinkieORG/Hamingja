@@ -20,6 +20,6 @@ def hit_or_miss(in_tiles, se: StructuralElement):
             max(0, o[1]) : o[1] + se.w,
         ]
         result[i] = np.all(
-            cutout == se.tiles.clipped(Point(o[0], o[1]), in_tiles.shape).mask
+            cutout == se.tiles.clipped(Point(o[0], o[1]), in_tiles.shape)[0].mask
         )
     return result
