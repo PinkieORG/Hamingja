@@ -59,18 +59,18 @@ class SimpleArea:
         return filled_out
 
     def stretch(self, size: Tuple) -> None:
-        """Transforms the set as if it was inside a set of certain size on a certain
+        """Transforms the set as if it was inside a set of certain size at the origin
         position."""
         stretched_tiles = Tiles(size, empty=True)
         stretched_tiles.merge(self.origin, self.tiles)
         self.origin = Point(0, 0)
         self.tiles = stretched_tiles
 
-    def stretched(self) -> SimpleArea:
-        """Returns the set as if it was inside a set of certain size of a certain
+    def stretched(self, size: Tuple) -> SimpleArea:
+        """Returns the set as if it was inside a set of certain size at the origin
         position."""
         stretched = deepcopy(self)
-        stretched.stretch()
+        stretched.stretch(size)
         return stretched
 
     def inner_border(self):
