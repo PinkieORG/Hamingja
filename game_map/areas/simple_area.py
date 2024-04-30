@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+import random
 from copy import deepcopy
 from typing import Tuple, List
 
 import numpy as np
+from tcod.console import Console
 
 from game_map.areas.tiles.supplementaries import Point
 from game_map.areas.tiles.tiles import Tiles
@@ -20,6 +22,14 @@ class SimpleArea:
         result = SimpleArea(in_tiles.size)
         result.tiles = in_tiles
         return result
+
+    @staticmethod
+    def intersection(first: SimpleArea, second: SimpleArea) -> SimpleArea:
+        local_point = second.origin - first.origin
+        clipped, origin = second.tiles.clipped(local_point, first.size)
+        intersection = SimpleArea.create_from_tiles(clipped)
+        intersection.origin = origin + first.origin
+        return intersection
 
     @property
     def size(self):
@@ -93,6 +103,15 @@ class SimpleArea:
 
     def uncover(self):
         return self.filled_out(self.inner_border())
+
+    def get_random_coordination(self) -> Point:
+        points = self.tiles.get_mask_indexes()
+        local_point = Point(*random.choice(points))
+        return local_point + self.origin
+
+    def render(self, console: Console, parent_origin: Point) -> None:
+        global_origin = parent_origin + self.origin
+        self.tiles.render(console, global_origin)
 
     def fit_in(self, to_fit: SimpleArea) -> List[Point]:
         return self.tiles.fit_in(to_fit.tiles)
