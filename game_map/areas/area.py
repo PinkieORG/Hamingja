@@ -87,3 +87,14 @@ class Area(SimpleArea):
         clone.fill_out(neighbour)
         clone.fill_in(frontier)
         return clone.fit_in_direction(to_place, frontier, (direction,))
+
+    def children_intersection(
+        self, first: SimpleArea, second: SimpleArea
+    ) -> SimpleArea:
+        local_point = second.origin - first.origin
+        clipped = SimpleArea.create_from_tiles(
+            second.tiles.clipped(local_point, first.size)
+        )
+        clipped.origin = local_point
+        clipped.parent = self
+        return clipped
