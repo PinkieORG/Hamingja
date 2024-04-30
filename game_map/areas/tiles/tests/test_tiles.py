@@ -6,8 +6,6 @@ from tile_types import wall, floor, test1
 
 
 class TestClipped(unittest.TestCase):
-    size = (10, 5)
-
     def test_clip_to_same_size(self):
         original = Tiles((10, 5), fill_value=wall)
         clipped = original.clipped(Point(0, 0), (10, 5))
