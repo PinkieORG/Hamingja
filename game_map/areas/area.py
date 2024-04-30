@@ -19,6 +19,7 @@ class Area(SimpleArea):
     def __init__(self, size: Tuple, origin: Point = Point(0, 0)):
         super().__init__(size, origin)
         self.children = []
+        self.postfilter = []
 
     def place_in(self, area: SimpleArea) -> None:
         """Places another areas inside the tiles."""
@@ -33,10 +34,11 @@ class Area(SimpleArea):
         return None
 
     def render(self, console: Console, parent_origin: Point) -> None:
-        global_origin = parent_origin + self.origin
-        self.tiles.render(console, global_origin)
+        super().render(console, parent_origin)
         for child in self.children:
             child.render(console, self.origin)
+        for po in self.postfilter:
+            po.render(console, self.origin)
 
     def place_in_randomly(self, place_points: List[Point], area: SimpleArea) -> bool:
         if len(place_points) != 0:
@@ -78,13 +80,3 @@ class Area(SimpleArea):
         clone.fill_out(neighbour)
         clone.fill_in(frontier)
         return clone.fit_in_direction(to_place, frontier, (direction,))
-
-    def children_intersection(
-        self, first: SimpleArea, second: SimpleArea
-    ) -> SimpleArea:
-        local_point = second.origin - first.origin
-        clipped = SimpleArea.create_from_tiles(
-            second.tiles.clipped(local_point, first.size)
-        )
-        clipped.origin = local_point
-        return clipped
