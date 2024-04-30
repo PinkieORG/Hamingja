@@ -165,8 +165,8 @@ class Tiles:
         if xl > xr or yl > yr:
             return Tiles((0, 0))
 
-        clipped = deepcopy(self)
-        clipped._tiles["mask"] = self.mask[yl:yr, xl:xr]
+        clipped = Tiles((yr - yl, xr - xl), empty=True)
+        clipped._tiles = deepcopy(self._tiles[yl:yr, xl:xr])
         return clipped
 
     def moved_mask(self, direction: Direction, offset: int = 1) -> Tiles:
