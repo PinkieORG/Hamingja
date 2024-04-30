@@ -20,18 +20,10 @@ class Area(SimpleArea):
         super().__init__(size, origin)
         self.children = []
 
-    def is_related(self, other: Area) -> bool:
-        return (
-            self.parent is not other.parent
-            or other is not self.parent
-            or other not in self.children
-        )
-
     def place_in(self, area: SimpleArea) -> None:
         """Places another areas inside the tiles."""
         if not self.is_placable(area):
             raise ValueError("Area to insert does not fit inside the tiles.")
-        area.parent = self
         self.children.append(area)
         self.set_unplaceable(area.uncover())
 
@@ -82,7 +74,6 @@ class Area(SimpleArea):
             neighbour.tiles.frontier_in_direction(direction)
         )
         frontier.origin = copy(neighbour.origin)
-        frontier.parent = self
         clone = deepcopy(self)
         clone.fill_out(neighbour)
         clone.fill_in(frontier)
@@ -96,5 +87,4 @@ class Area(SimpleArea):
             second.tiles.clipped(local_point, first.size)
         )
         clipped.origin = local_point
-        clipped.parent = self
         return clipped

@@ -12,7 +12,6 @@ from game_map.direction.direction import Direction
 
 class SimpleArea:
     def __init__(self, size: Tuple, origin: Point = Point(0, 0)):
-        self.parent = None
         self.origin = origin
         self.tiles = Tiles(size)
 
@@ -107,7 +106,7 @@ class SimpleArea:
         """Fits in another area on the points specified by the anchor in specific
         direction."""
         return self.tiles.fit_in_direction(
-            to_fit.tiles, anchor.stretched().tiles, directions
+            to_fit.tiles, anchor.stretched(self.size).tiles, directions
         )
 
     def fit_in_touching(
