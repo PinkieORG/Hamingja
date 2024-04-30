@@ -58,10 +58,10 @@ class SimpleArea:
         filled_out.fill_out(area)
         return filled_out
 
-    def stretch(self) -> None:
+    def stretch(self, size: Tuple) -> None:
         """Transforms the set as if it was inside a set of certain size on a certain
         position."""
-        stretched_tiles = Tiles(self.parent.size, empty=True)
+        stretched_tiles = Tiles(size, empty=True)
         stretched_tiles.merge(self.origin, self.tiles)
         self.origin = Point(0, 0)
         self.tiles = stretched_tiles
