@@ -5,6 +5,7 @@ import tile_types
 from game_map.areas.area import Area
 from game_map.areas.prototype_areas.prototype_areas import create_carpet, create_column
 from game_map.areas.random_simple_areas import DimensionRange, random_rectangle_area
+from game_map.areas.tiles.supplementaries import Point
 from game_map.direction.direction import Direction
 
 
@@ -39,13 +40,20 @@ class Room(Area):
     def __init__(self, size: Tuple):
         super().__init__(size)
         self.fill(tile_types.floor)
-        self.fill_border(tile_types.test2)
+        if __debug__:
+            self.fill_border(tile_types.border_debug)
+        else:
+            self.fill_border(tile_types.wall)
 
     @staticmethod
     def from_dim_range(dim_range: DimensionRange):
         h = random.randrange(dim_range.min_w, dim_range.max_w + 1)
         w = random.randrange(dim_range.min_h, dim_range.max_h + 1)
         return Room((h, w))
+
+    def make_entrance(self, position: Point) -> None:
+        entrance = Area((1, 1), position)
+        self.fill_in(entrance)
 
 
 # class MultiRoom(Room):
@@ -83,7 +91,10 @@ class LRoom(Room):
         p = self.fit_in_corner(rectangle, (direction,))[0]
         rectangle.origin = p
         self.fill_out(rectangle)
-        self.fill_border(tile_types.test2)
+        if __debug__:
+            self.fill_border(tile_types.border_debug)
+        else:
+            self.fill_border(tile_types.wall)
         self.set_unplaceable(self.inner_border())
 
 
