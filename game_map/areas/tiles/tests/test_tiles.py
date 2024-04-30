@@ -31,7 +31,7 @@ class TestClipped(unittest.TestCase):
     def test_contains_correct_tiles(self):
         original = Tiles((10, 5), fill_value=wall)
         original.merge(
-            Point(3, 3),
+            Point(0, 0),
             Tiles((1, 1), fill_value=test1),
         )
         clipped = original.clipped(Point(3, 3), (10, 5))
