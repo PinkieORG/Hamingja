@@ -29,11 +29,9 @@ class GameMap(Area):
             raise ValueError("Rooms not in children.")
         intersection = SimpleArea.intersection(first, second)
         entrance_point = intersection.get_random_coordination()
-        entrance = SimpleArea((1, 1), entrance_point)
-        entrance.fill(tile_types.yellow)
-        self.postfilter.append(entrance)
-        # first.make_entrance(entrance_point - first.origin)
-        # second.make_entrance(entrance_point - second.origin)
+        # TODO implement thinning
+        first.make_entrance(entrance_point - first.origin)
+        second.make_entrance(entrance_point - second.origin)
 
     def make_entrance_room(self, room: Room) -> None:
         for neighbour in self.room_graph.get_neighbours(room):

@@ -53,7 +53,7 @@ class Room(Area):
 
     def make_entrance(self, position: Point) -> None:
         entrance = Area((1, 1), position)
-        self.fill_in(entrance)
+        self.place_in(entrance)
 
 
 # class MultiRoom(Room):

@@ -21,9 +21,9 @@ class Area(SimpleArea):
         self.children = []
         self.postfilter = []
 
-    def place_in(self, area: SimpleArea) -> None:
+    def place_in(self, area: SimpleArea, force: bool = False) -> None:
         """Places another areas inside the tiles."""
-        if not self.is_placable(area):
+        if force and not self.is_placable(area):
             raise ValueError("Area to insert does not fit inside the tiles.")
         self.children.append(area)
         self.set_unplaceable(area.uncover())
