@@ -33,12 +33,14 @@ class Area(SimpleArea):
             self.children.remove(area)
         return None
 
-    def render(self, console: Console, parent_origin: Point) -> None:
-        super().render(console, parent_origin)
+    def draw_children(self):
         for child in self.children:
-            child.render(console, self.origin)
-        for po in self.postfilter:
-            po.render(console, self.origin)
+            child.draw_children()
+            self.fill_in(child)
+
+    def render(self, console: Console, parent_origin: Point) -> None:
+        self.draw_children()
+        self.tiles.render(console, parent_origin)
 
     def place_in_randomly(self, place_points: List[Point], area: SimpleArea) -> bool:
         if len(place_points) != 0:
