@@ -5,7 +5,6 @@ from copy import deepcopy
 from typing import Tuple, List
 
 import numpy as np
-from tcod.console import Console
 
 from game_map.areas.tiles.supplementaries import Point
 from game_map.areas.tiles.tiles import Tiles
@@ -108,10 +107,6 @@ class SimpleArea:
         points = self.tiles.get_mask_indexes()
         local_point = Point(*random.choice(points))
         return local_point + self.origin
-
-    def render(self, console: Console, parent_origin: Point) -> None:
-        global_origin = parent_origin + self.origin
-        self.tiles.render(console, global_origin)
 
     def fit_in(self, to_fit: SimpleArea) -> List[Point]:
         return self.tiles.fit_in(to_fit.tiles)

@@ -7,7 +7,6 @@ from typing import Tuple, List
 
 import numpy as np
 from numpy.typing import NDArray
-from tcod.console import Console
 
 import tile_types
 from game_map.areas.tiles.supplementaries import Point
@@ -265,14 +264,6 @@ class Tiles:
         intersection = deepcopy(self)
         intersection.intersect_mask(p, other)
         return intersection
-
-    def render(self, console: Console, origin: Point):
-        console.rgb[
-            origin.y : origin.y + self.h,
-            origin.x : origin.x + self.w,
-        ][
-            self.mask
-        ] = self._tiles["dark"][self.mask]
 
     def fit_in(self, to_fit: Tiles) -> List[Point]:
         valid_points = []

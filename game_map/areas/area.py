@@ -38,10 +38,6 @@ class Area(SimpleArea):
             child.draw_children()
             self.fill_in(child)
 
-    def render(self, console: Console, parent_origin: Point) -> None:
-        self.draw_children()
-        self.tiles.render(console, parent_origin)
-
     def place_in_randomly(self, place_points: List[Point], area: SimpleArea) -> bool:
         if len(place_points) != 0:
             p = random.choice(place_points)
