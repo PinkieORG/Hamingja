@@ -7,6 +7,10 @@ from game_map.areas.area import SimpleArea
 
 
 class DimensionRange:
+    """
+    Defines minimum and maximum dimensions.
+    """
+
     def __init__(self, min_h, max_h, min_w, max_w):
         self.min_h = min_h
         self.max_h = max_h
