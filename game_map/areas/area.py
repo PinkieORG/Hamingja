@@ -13,8 +13,8 @@ from game_map.direction.direction import Direction
 
 class Area(SimpleArea):
     """Represent an areas on the game map. It can have its subareas inside and a
-    parent, creating a tree structure. It has its origin which defines a position
-    within the parent."""
+    parent, creating a tree structure. It has its origin which defines a
+    position within the parent."""
 
     def __init__(self, size: Tuple, origin: Point = Point(0, 0)):
         super().__init__(size, origin)
@@ -38,7 +38,9 @@ class Area(SimpleArea):
             child.draw_children()
             self.fill_in(child)
 
-    def place_in_randomly(self, place_points: List[Point], area: SimpleArea) -> bool:
+    def place_in_randomly(
+        self, place_points: List[Point], area: SimpleArea
+    ) -> bool:
         if len(place_points) != 0:
             p = random.choice(place_points)
             area.origin = p

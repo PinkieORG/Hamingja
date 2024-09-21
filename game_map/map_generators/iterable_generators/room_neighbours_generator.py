@@ -12,7 +12,10 @@ from tile_types import active_room, wall, red
 
 class RoomNeighboursGenerator(IterableGenerator):
     def __init__(
-        self, game_map: GameMap, room_size_factors: Tuple[float, float], density: float
+        self,
+        game_map: GameMap,
+        room_size_factors: Tuple[float, float],
+        density: float,
     ):
         super().__init__(game_map, room_size_factors, density)
         self.to_process: list[Room] = []
@@ -28,7 +31,9 @@ class RoomNeighboursGenerator(IterableGenerator):
 
     def prepare(self):
         start_room = self.get_room()
-        self.game_map.place_in_randomly(self.game_map.fit_in(start_room), start_room)
+        self.game_map.place_in_randomly(
+            self.game_map.fit_in(start_room), start_room
+        )
         self.to_process.append(start_room)
 
     def add_room(self):
@@ -46,7 +51,13 @@ class RoomNeighboursGenerator(IterableGenerator):
             room = self.get_room()
             placed = self.game_map.place_room_next_to(room, neighbour)
             self.logger.info(
-                ("Tried to place ,", room.size, "at ", room.origin.y, room.origin.x)
+                (
+                    "Tried to place ,",
+                    room.size,
+                    "at ",
+                    room.origin.y,
+                    room.origin.x,
+                )
             )
             if placed:
                 self.logger.info(

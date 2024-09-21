@@ -3,8 +3,14 @@ from typing import Tuple
 
 import tile_types
 from game_map.areas.area import Area
-from game_map.areas.prototype_areas.prototype_areas import create_carpet, create_column
-from game_map.areas.random_simple_areas import DimensionRange, random_rectangle_area
+from game_map.areas.prototype_areas.prototype_areas import (
+    create_carpet,
+    create_column,
+)
+from game_map.areas.random_simple_areas import (
+    DimensionRange,
+    random_rectangle_area,
+)
 from game_map.areas.tiles.supplementaries import Point
 from game_map.direction.direction import Direction
 

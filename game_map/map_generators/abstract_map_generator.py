@@ -7,7 +7,10 @@ from game_map.areas.random_simple_areas import DimensionRange
 
 class AbstractMapGenerator(ABC):
     def __init__(
-        self, game_map: GameMap, room_size_factors: Tuple[float, float], density: float
+        self,
+        game_map: GameMap,
+        room_size_factors: Tuple[float, float],
+        density: float,
     ):
         self.game_map = game_map
         self.room_size_range = DimensionRange.from_size(

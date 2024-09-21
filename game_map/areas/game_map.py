@@ -18,7 +18,9 @@ class GameMap(Area):
         self.room_graph.push(room)
 
     def place_room_next_to(self, to_place: Room, neighbour: Room) -> bool:
-        placed = self.place_in_randomly(self.fit_next_to(to_place, neighbour), to_place)
+        placed = self.place_in_randomly(
+            self.fit_next_to(to_place, neighbour), to_place
+        )
         if placed:
             self.room_graph.push(to_place, [neighbour])
             self.room_graph.add_neighbour_to(neighbour, to_place)

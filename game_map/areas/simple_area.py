@@ -67,16 +67,16 @@ class SimpleArea:
         return filled_out
 
     def stretch(self, size: Tuple) -> None:
-        """Transforms the set as if it was inside a set of certain size at the origin
-        position."""
+        """Transforms the set as if it was inside a set of certain size at the
+        origin position."""
         stretched_tiles = Tiles(size, empty=True)
         stretched_tiles.merge(self.origin, self.tiles)
         self.origin = Point(0, 0)
         self.tiles = stretched_tiles
 
     def stretched(self, size: Tuple) -> SimpleArea:
-        """Returns the set as if it was inside a set of certain size at the origin
-        position."""
+        """Returns the set as if it was inside a set of certain size at the
+        origin position."""
         stretched = deepcopy(self)
         stretched.stretch(size)
         return stretched
@@ -98,7 +98,9 @@ class SimpleArea:
 
     def density(self) -> float:
         """Returns the ratio of placable tiles to all the tiles."""
-        return (self.volume() - np.count_nonzero(self.tiles.placable)) / self.volume()
+        return (
+            self.volume() - np.count_nonzero(self.tiles.placable)
+        ) / self.volume()
 
     def uncover(self):
         return self.filled_out(self.inner_border())
@@ -117,8 +119,8 @@ class SimpleArea:
         anchor: SimpleArea,
         directions: Tuple = Direction.get_all_directions(),
     ) -> List[Point]:
-        """Fits in another area on the points specified by the anchor in specific
-        direction."""
+        """Fits in another area on the points specified by the anchor in
+        specific direction."""
         return self.tiles.fit_in_direction(
             to_fit.tiles, anchor.stretched(self.size).tiles, directions
         )
@@ -130,8 +132,8 @@ class SimpleArea:
         direction: Direction,
         offset: int = 0,
     ) -> List[Point]:
-        """Fits in another area touching the anchor in the given direction. The new
-        tiles will not collide with the anchor."""
+        """Fits in another area touching the anchor in the given direction. The
+        new tiles will not collide with the anchor."""
         return self.tiles.fit_in_touching(
             to_fit.tiles, anchor.stretched().tiles, direction, offset
         )
@@ -148,7 +150,9 @@ class SimpleArea:
         )
 
     def fit_in_corner(
-        self, to_fit: SimpleArea, directions: Tuple = Direction.get_all_directions()
+        self,
+        to_fit: SimpleArea,
+        directions: Tuple = Direction.get_all_directions(),
     ) -> List[Point]:
         """Places an areas in the corner. The areas will be touching the wall
         in defined direction and the next wall clockwise of that direction.
@@ -157,6 +161,8 @@ class SimpleArea:
         result = []
         for direction in directions:
             result += self.tiles.fit_in_direction(
-                to_fit.tiles, self.tiles.corners(direction), (direction.get_opposite(),)
+                to_fit.tiles,
+                self.tiles.corners(direction),
+                (direction.get_opposite(),),
             )
         return result

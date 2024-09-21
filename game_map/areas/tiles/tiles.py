@@ -108,19 +108,24 @@ class Tiles:
     def is_subset(self, p: Point, other: Tiles) -> bool:
         if not self.set_in_bbox(p, other):
             return False
-        return np.all(~other.mask | self.mask[p.y : p.y + other.h, p.x : p.x + other.w])
+        return np.all(
+            ~other.mask | self.mask[p.y : p.y + other.h, p.x : p.x + other.w]
+        )
 
     def is_placable(self, p: Point, other: Tiles) -> bool:
         if not self.set_in_bbox(p, other):
             return False
         return np.all(
-            ~other.mask | self.placable[p.y : p.y + other.h, p.x : p.x + other.w]
+            ~other.mask
+            | self.placable[p.y : p.y + other.h, p.x : p.x + other.w]
         )
 
     def collides(self, p: Point, other: Tiles) -> bool:
         return np.all(
             other.clipped(p, self.size).mask
-            & self.mask[max(0, p.y) : p.y + other.h, max(0, p.x) : p.x + other.w]
+            & self.mask[
+                max(0, p.y) : p.y + other.h, max(0, p.x) : p.x + other.w
+            ]
         )
 
     def same_size(self, other: Tiles) -> bool:
@@ -185,7 +190,9 @@ class Tiles:
     def fill(self, fill_value) -> None:
         self._tiles = np.full(self.size, fill_value=fill_value)
 
-    def inner_border(self, connectivity: Connectivity = Connectivity.EIGHT) -> Tiles:
+    def inner_border(
+        self, connectivity: Connectivity = Connectivity.EIGHT
+    ) -> Tiles:
         """Returns the inner border of the mask. A border tile is the one connected to
         background."""
         kernel = connectivity.get_adjacency_mask()
@@ -196,7 +203,10 @@ class Tiles:
                 continue
             for k in kernel:
                 n = add_tuples(i, k)
-                if not self.point_in_bbox(Point(n[0], n[1])) or not self.mask[n]:
+                if (
+                    not self.point_in_bbox(Point(n[0], n[1]))
+                    or not self.mask[n]
+                ):
                     border.mask[i] = True
                     break
         return border
@@ -257,7 +267,9 @@ class Tiles:
         """Performs an intersection of two tiles at the given position."""
         cutout = self.mask[p.y : p.y + other.h, p.x : p.x + other.w].copy()
         self.clear_mask()
-        self.mask[p.y : p.y + other.h, p.x : p.x + other.w] = cutout & other.mask
+        self.mask[p.y : p.y + other.h, p.x : p.x + other.w] = (
+            cutout & other.mask
+        )
 
     def mask_intersection(self, p: Point, other: Tiles) -> Tiles:
         """Returns an intersection of two tiles."""
@@ -295,7 +307,11 @@ class Tiles:
         return valid_points
 
     def fit_in_touching(
-        self, to_fit: Tiles, anchor: Tiles, direction: Direction, offset: int = 0
+        self,
+        to_fit: Tiles,
+        anchor: Tiles,
+        direction: Direction,
+        offset: int = 0,
     ) -> List[Point] | None:
         """Fits in another tiles touching the anchor in the given direction. The new
         tiles will not collide with the anchor."""
